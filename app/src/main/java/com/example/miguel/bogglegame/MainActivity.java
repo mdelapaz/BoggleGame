@@ -16,7 +16,15 @@ public class MainActivity extends AppCompatActivity {
             "A", "B", "C", "D",
             "E", "F", "G", "H",
             "I", "J", "K", "L",
-            "M", "N", "O", "P"};
+            "M", "N", "O", "P"
+    };
+
+    static int lastPicked = -1;
+    static boolean[] clicked = new boolean[]
+            { false, false, false, false,
+                false, false, false, false,
+                false, false, false, false,
+                false, false, false, false };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,15 +43,29 @@ public class MainActivity extends AppCompatActivity {
         gridview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View v,
                                     int position, long id) {
+                int lastRow = lastPicked / 4;
+                int lastCol = lastPicked % 4;
+                int row = position / 4;
+                int col = position % 4;
 
-                if(currentWord.getText() == null) {
-                    currentWord.setText(((TextView) v).getText());
-                }
-                else {
-                    currentWord.append(((TextView) v).getText());
-                }
+                if(!clicked[position] &&
+                        (lastPicked == -1 ||
+                                (Math.abs(lastRow-row) <= 1 &&
+                                    Math.abs(lastCol-col) <= 1)) &&
+                        (lastRow != row || lastCol != col)
+                        ) {
 
-                v.setBackgroundColor(Color.parseColor("#FF0000"));
+                    lastPicked = position;
+                    clicked[position] = true;
+
+                    if (currentWord.getText() == null) {
+                        currentWord.setText(((TextView) v).getText());
+                    } else {
+                        currentWord.append(((TextView) v).getText());
+                    }
+
+                    v.setBackgroundColor(Color.parseColor("#FF0000"));
+                }
             }
         });
 
@@ -56,6 +78,12 @@ public class MainActivity extends AppCompatActivity {
 
                     child.setBackgroundColor(Color.parseColor("#FFFFFF"));
                 }
+
+                for(int j = 0; j < 16; j++){
+                    clicked[j] = false;
+                }
+
+                lastPicked = -1;
             }
         });
     }
