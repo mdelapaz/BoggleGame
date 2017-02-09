@@ -38,9 +38,9 @@ public class Backend {
     //1 - failure, word does not exist in dictionary
     //2 - failure, word already submitted
     //3 - failure, opponent already submitted this word
-    int submit_word(int[] submission) {
+    int submit_word(int[] submission, int word_length) {
         String candidate = "";
-        for(int i = 0; i < submission.length; i++) {
+        for(int i = 0; i < word_length; i++) {
             candidate += letters[submission[i]];
         }
 

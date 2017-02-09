@@ -91,7 +91,7 @@ public class Frontend {
     public boolean submit_click() {
         System.out.println("Clicked the submit button");
         if(last_click >= 2) { //more than 3 letters long
-            int result = backend.submit_word(current_submission);
+            int result = backend.submit_word(current_submission, last_click + 1);
             if(result == 0) { //success
                 System.out.println("Word submission successful");
                 clear_click();
