@@ -12,6 +12,8 @@ import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity {
 
+    Frontend frontend = new Frontend();
+    /*
     static final String[] letters = new String[] {
             "A", "B", "C", "D",
             "E", "F", "G", "H",
@@ -24,7 +26,7 @@ public class MainActivity extends AppCompatActivity {
             { false, false, false, false,
                 false, false, false, false,
                 false, false, false, false,
-                false, false, false, false };
+                false, false, false, false };*/
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,16 +35,28 @@ public class MainActivity extends AppCompatActivity {
 
         final GridView gridview = (GridView) findViewById(R.id.LetterGrid);
         final Button clearButton = (Button) findViewById(R.id.ClearButton);
+        final Button submitButton = (Button) findViewById(R.id.SubmitButton);
+        final Button resetButton = (Button) findViewById(R.id.ResetButton);
         final TextView currentWord = (TextView) findViewById(R.id.CurrentWord);
 
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
-                android.R.layout.simple_list_item_1, letters);
+                android.R.layout.simple_list_item_1, frontend.get_letters());
 
         gridview.setAdapter(adapter);
 
         gridview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View v,
                                     int position, long id) {
+                if(frontend.tile_click(position) == true) {
+                    if(frontend.tile_state[position] == true) {
+                        v.setBackgroundColor(Color.parseColor("#FF0000"));
+                    } else {
+                        v.setBackgroundColor(Color.parseColor("#FFFFFF"));
+                    }
+                    currentWord.setText(frontend.get_candidate_word());
+                }
+
+                /*
                 int lastRow = lastPicked / 4;
                 int lastCol = lastPicked % 4;
                 int row = position / 4;
@@ -56,6 +70,7 @@ public class MainActivity extends AppCompatActivity {
                         ) {
 
                     lastPicked = position;
+                    System.out.print("Me rike cricky cricky!\n");
                     clicked[position] = true;
 
                     if (currentWord.getText() == null) {
@@ -65,12 +80,20 @@ public class MainActivity extends AppCompatActivity {
                     }
 
                     v.setBackgroundColor(Color.parseColor("#FF0000"));
-                }
+                }*/
             }
         });
 
         clearButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
+                if(frontend.clear_click()) {
+                    for(int i=0; i< gridview.getChildCount(); i++) {
+                        TextView child = (TextView) gridview.getChildAt(i);
+                        child.setBackgroundColor(Color.parseColor("#FFFFFF"));
+                    }
+                    currentWord.setText(frontend.get_candidate_word());
+                }
+                /*
                 currentWord.setText(null);
 
                 for(int i=0; i< gridview.getChildCount(); i++) {
@@ -83,7 +106,39 @@ public class MainActivity extends AppCompatActivity {
                     clicked[j] = false;
                 }
 
-                lastPicked = -1;
+                lastPicked = -1;*/
+            }
+        });
+
+        submitButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                if(frontend.submit_click()) {
+                    for(int i=0; i< gridview.getChildCount(); i++) {
+                        TextView child = (TextView) gridview.getChildAt(i);
+                        if(frontend.tile_state[i] == true) {
+                            child.setBackgroundColor(Color.parseColor("#FF0000"));
+                        } else {
+                            child.setBackgroundColor(Color.parseColor("#FFFFFF"));
+                        }
+                    }
+                    currentWord.setText(frontend.get_candidate_word());
+                }
+            }
+        });
+
+        resetButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                if(frontend.reset_click()) {
+                    for(int i=0; i< gridview.getChildCount(); i++) {
+                        TextView child = (TextView) gridview.getChildAt(i);
+                        if(frontend.tile_state[i] == true) {
+                            child.setBackgroundColor(Color.parseColor("#FF0000"));
+                        } else {
+                            child.setBackgroundColor(Color.parseColor("#FFFFFF"));
+                        }
+                    }
+                    currentWord.setText(frontend.get_candidate_word());
+                }
             }
         });
     }
