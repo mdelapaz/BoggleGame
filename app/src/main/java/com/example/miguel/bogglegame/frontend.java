@@ -4,7 +4,7 @@ package com.example.miguel.bogglegame;
  * Created by tpatecky on 2/8/2017.
  */
 
-public class Frontend {
+public class frontend {
     //Data
     Backend backend = new Backend();
     //array of tile clicks for the current candidate word
@@ -22,7 +22,7 @@ public class Frontend {
     };
 
     //Constructor
-    public Frontend() {
+    public frontend() {
         for(int i = 0; i < 16; i++) {
             tile_state[i] = false;
         }

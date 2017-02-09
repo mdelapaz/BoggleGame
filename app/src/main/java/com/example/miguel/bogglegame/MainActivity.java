@@ -12,7 +12,7 @@ import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity {
 
-    Frontend frontend = new Frontend();
+    frontend frontend = new frontend();
     /*
     static final String[] letters = new String[] {
             "A", "B", "C", "D",
