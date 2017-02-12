@@ -1,5 +1,7 @@
 package com.example.miguel.bogglegame;
 
+import com.example.miguel.bogglegame.AppLogic.BoggleBoard;
+
 import java.util.ArrayList;
 
 /**
@@ -7,15 +9,16 @@ import java.util.ArrayList;
  */
 
 public class Backend {
-    String[] letters = new String[] {
-            "A", "B", "C", "D",
-            "E", "F", "G", "H",
-            "I", "J", "K", "L",
-            "M", "N", "O", "P"
-    };
+
+    String[] letters;
+
+    public Backend(String[] wordsInDictionary){
+        //create a new 4*4 boggle board
+        BoggleBoard boggle = new BoggleBoard(4, wordsInDictionary);
+        letters = boggle.exportBoard();
+    }
 
     ArrayList<String> submitted_words = new ArrayList<String>();
-
     int score = 42;
 
     //return letter in tile at that grid position

@@ -1,8 +1,10 @@
 package com.example.miguel.bogglegame;
 
+import android.content.res.AssetManager;
 import android.graphics.Color;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -10,9 +12,15 @@ import android.widget.Button;
 import android.widget.GridView;
 import android.widget.TextView;
 
+import java.io.IOException;
+import java.io.InputStream;
+
 public class MainActivity extends AppCompatActivity {
 
-    frontend frontend = new frontend();
+    frontend frontend = null;
+
+    public MainActivity() throws IOException {
+    }
     /*
     static final String[] letters = new String[] {
             "A", "B", "C", "D",
@@ -30,6 +38,24 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        //read words from dictionary.txt
+        String text = "";
+        String []words;
+        try {
+            InputStream is = getAssets().open("dictionary.txt");
+            int size = is.available();
+            byte[] buffer = new byte[size];
+            is.read(buffer);
+            is.close();
+            text = new String(buffer);
+            words = text.split("\r\n");
+            frontend = new frontend(words);
+
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 

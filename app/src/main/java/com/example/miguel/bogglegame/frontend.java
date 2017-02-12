@@ -5,8 +5,12 @@ package com.example.miguel.bogglegame;
  */
 
 public class frontend {
+
+    public frontend(String[] wordsInDictionary){
+        backend = new Backend(wordsInDictionary);
+    }
     //Data
-    Backend backend = new Backend();
+    Backend backend;
     //array of tile clicks for the current candidate word
     int current_submission[] = new int[16];
     //index in current_submission of last user click
