@@ -10,11 +10,15 @@ import java.util.ArrayList;
 
 public class Backend {
 
-    String[] letters;
+     String[] letters;
+    //0 is easy, 1 is normal, 2 is difficult
+     private int difficulty_level = 0;
+    //length to a N*N boggle board
+    private int boggleBoardLength = 4;
 
     public Backend(String[] wordsInDictionary){
-        //create a new 4*4 boggle board
-        BoggleBoard boggle = new BoggleBoard(4, wordsInDictionary);
+
+        BoggleBoard boggle = new BoggleBoard(boggleBoardLength, wordsInDictionary, difficulty_level);
         letters = boggle.exportBoard();
     }
 
