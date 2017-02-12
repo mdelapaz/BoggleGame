@@ -17,9 +17,16 @@ public class BoggleBoard {
     //A valid grid of dice must contain at least two valid words in level easy, five valid words in level normal, and seven words in level difficult
     private int difficultyLevel;
 
+    //The score of each valid word is counted based on its length, 1 point for 3 or 4 letter words, 2 points for 5 letter words, 3
+    //points for 6 letter words, 5 points for 7 letter words, and 10 points for words of 8 or more letters.
+    private int score;
+    //validWordsFoundByUser contains all valid words on boggle board that are found by user
+    private Set<String> validWordsFoundByUser = new HashSet<String>();
+
     /**Initializes a boardLength * boardLength board with random characters*/
     public BoggleBoard(final int boardLength, final String[] wordsInDictionary, int difficultyLevel) {
 
+        score = 0;
         this.boardLength = boardLength;
         this.difficultyLevel = difficultyLevel;
 
@@ -121,8 +128,56 @@ public class BoggleBoard {
         }
     }
 
-    public boolean isAValidWordOnBoard(String word){
+    //returns 0 if word is not a valid word i.e. not in game's dictionary
+    //returns 1 if the word submitted is a valid word and has never been submitted by user before
+    //return 2 if word is a valid word but has been submitted by user before
+    // score is updated accordingly
+    public int checkWordAndUpdateScore(String word){
 
-        return validWordsOnBoard.contains(word.toUpperCase());
+        //if word is valid and is on board
+        if(validWordsOnBoard.contains(word.toUpperCase())){
+
+            //if word has never been submitted by user before, add word to validWordsFoundByUser and update score
+            if(!validWordsFoundByUser.contains(word.toUpperCase())){
+
+                int wordLength = word.length();
+
+                switch (wordLength){
+
+                    case 3:
+                    case 4:
+                        score += 1;
+                        break;
+
+                    case 5:
+                        score += 2;
+                        break;
+
+                    case 6:
+                        score += 3;
+                        break;
+
+                    case 7:
+                        score += 5;
+                        break;
+
+                    //word of length 10 or more
+                    default:
+                        score += 10;
+                        break;
+                }
+
+                validWordsFoundByUser.add(word);
+                return 1;
+            } else{
+
+                return 2;
+            }
+        }
+        return 0;
+    }
+
+    public int getScore() {
+        return score;
     }
 }
