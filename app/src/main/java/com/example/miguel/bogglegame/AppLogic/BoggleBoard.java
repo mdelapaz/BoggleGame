@@ -180,4 +180,14 @@ public class BoggleBoard {
     public int getScore() {
         return score;
     }
+
+    /**Return valid words not found by user*/
+    public Set<String> getWordsNotFoundByUser(){
+
+        Set<String> validWordsOnBoardCopy = new HashSet<String>();
+        validWordsOnBoardCopy.addAll(validWordsOnBoard);
+        validWordsOnBoardCopy.removeAll(validWordsFoundByUser);
+
+        return validWordsOnBoardCopy;
+    }
 }
