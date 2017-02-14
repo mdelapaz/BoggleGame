@@ -1,7 +1,10 @@
 package com.example.miguel.bogglegame;
 
+import android.content.Context;
 import android.content.res.AssetManager;
 import android.graphics.Color;
+import android.hardware.Sensor;
+import android.hardware.SensorManager;
 import android.os.CountDownTimer;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -19,6 +22,9 @@ import java.io.InputStream;
 public class MainActivity extends AppCompatActivity {
 
     frontend frontend = null;
+    private SensorManager sManager;
+    private Sensor mAccelerometer;
+    private ShakeListener mShakeListener;
     CountDownTimer gameTimer = null;
 
     public MainActivity() throws IOException {
@@ -71,6 +77,27 @@ public class MainActivity extends AppCompatActivity {
 
         final ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
                 android.R.layout.simple_list_item_1, frontend.get_letters());
+
+        sManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        mAccelerometer = sManager
+                .getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        mShakeListener = new ShakeListener();
+        mShakeListener.setOnShakeListener(new ShakeListener.OnShakeListener() {
+            @Override
+            public void onShake() {
+                if(frontend.reset_click()) {
+                    for(int i=0; i< gridview.getChildCount(); i++) {
+                        TextView child = (TextView) gridview.getChildAt(i);
+                        if(frontend.tile_state[i] == true) {
+                            child.setBackgroundColor(Color.parseColor("#FF0000"));
+                        } else {
+                            child.setBackgroundColor(Color.parseColor("#FFFFFF"));
+                        }
+                    }
+                    currentWord.setText(frontend.get_candidate_word());
+                }
+            }
+        });
 
         gridview.setAdapter(adapter);
 
@@ -130,5 +157,19 @@ public class MainActivity extends AppCompatActivity {
         }
         current_word.setText(frontend.get_candidate_word());
         current_score.setText("Score: " + Integer.toString(frontend.backend.getScore()));
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        // Register the Session Manager Listener onResume
+        sManager.registerListener(mShakeListener, mAccelerometer, SensorManager.SENSOR_DELAY_UI);
+    }
+
+    @Override
+    public void onPause() {
+        // Unregister the Sensor Manager onPause
+        sManager.unregisterListener(mShakeListener);
+        super.onPause();
     }
 }
