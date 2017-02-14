@@ -10,7 +10,8 @@ public class frontend {
 
     //data members
     boolean game_over; //true if game has ended (timeout)
-    BoggleBoard backend;
+    BackendDummy backend;
+    //BoggleBoard backend;  //real backend
     int current_submission[];
     int last_click;
     boolean tile_state[];
@@ -29,6 +30,7 @@ public class frontend {
 
 
     public frontend(String[] wordsInDictionary){
+        game_over = false;
         current_submission = new int[16];
         last_click = -1;
         tile_state = new boolean[16];
@@ -36,7 +38,8 @@ public class frontend {
             tile_state[i] = false;
         }
 
-        backend = new BoggleBoard(boggleBoardLength, wordsInDictionary, difficulty_level);
+        //backend = new BoggleBoard(boggleBoardLength, wordsInDictionary, difficulty_level);
+        backend = new BackendDummy(boggleBoardLength, wordsInDictionary, difficulty_level);
         tile_letters = backend.exportBoard();
     }
 
@@ -61,6 +64,9 @@ public class frontend {
     //check for valid click, if so update candidate word and submissionarray
     //returns true if activity needs to update the tile
     public boolean tile_click(int click_pos) {
+        if(game_over) {
+            return false;
+        }
         if(last_click >= 0) {
             //user clicks the tile they last clicked, remove that tile from submission
             if(click_pos == current_submission[last_click]) {
@@ -94,6 +100,9 @@ public class frontend {
     }
 
     public boolean clear_click() {
+        if(game_over) {
+            return false;
+        }
         System.out.println("clear submission");
         for(int i = 0; i < 16; i++) {
             tile_state[i] = false;
@@ -103,6 +112,9 @@ public class frontend {
     }
 
     public boolean submit_click() {
+        if(game_over) {
+            return false;
+        }
         System.out.println("Clicked the submit button");
         if(last_click >= 2) { //more than 3 letters long
             int result = backend.checkWordAndUpdateScore(get_candidate_word());
@@ -121,13 +133,6 @@ public class frontend {
             return false;
         }
     }
-    /*
-    public boolean reset_click() {
-        System.out.println("Reset button clicked");
-        backend.reset_game();
-        clear_click();
-        return true;
-    }*/
 
     //Private Methods
     private boolean is_adjacent(int pos1, int pos2) {

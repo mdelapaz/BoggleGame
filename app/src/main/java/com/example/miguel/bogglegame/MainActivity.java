@@ -70,6 +70,7 @@ public class MainActivity extends AppCompatActivity {
         mShakeListener.setOnShakeListener(new ShakeListener.OnShakeListener() {
             @Override
             public void onShake() {
+                gameTimer.cancel();
                 frontend = new frontend(words);
                 String[] letters = frontend.get_letters();
                 for(int i = 0; i < gridview.getChildCount(); i++) {
@@ -77,6 +78,7 @@ public class MainActivity extends AppCompatActivity {
                     child.setText(letters[i]);
                 }
                 refresh(gridview, currentWord, scoreview);
+                gameTimer = start_timer(timeview);
                 System.out.println("Restarted the game");
             }
         });
@@ -115,6 +117,7 @@ public class MainActivity extends AppCompatActivity {
 
         resetButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
+                gameTimer.cancel();
                 frontend = new frontend(words);
                 String[] letters = frontend.get_letters();
                 for(int i = 0; i < gridview.getChildCount(); i++) {
@@ -122,9 +125,11 @@ public class MainActivity extends AppCompatActivity {
                     child.setText(letters[i]);
                 }
                 refresh(gridview, currentWord, scoreview);
+                gameTimer = start_timer(timeview);
                 System.out.println("Restarted the game");
             }
         });
+        gameTimer = start_timer(timeview);
     }
 
     //refreshes the views according to current game state
@@ -139,6 +144,20 @@ public class MainActivity extends AppCompatActivity {
         }
         current_word.setText(frontend.get_candidate_word());
         current_score.setText("Score: " + Integer.toString(frontend.backend.getScore()));
+    }
+
+    public CountDownTimer start_timer(final TextView timeview) {
+        return new CountDownTimer(180000, 1000) {
+
+            public void onTick(long millisUntilFinished) {
+                timeview.setText("Time Left: " + (millisUntilFinished / 1000) + " s");
+            }
+
+            public void onFinish() {
+                timeview.setText("Game Over");
+                frontend.game_over = true;
+            }
+        }.start();
     }
 
     @Override
