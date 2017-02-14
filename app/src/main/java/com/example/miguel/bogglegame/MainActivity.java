@@ -29,20 +29,6 @@ public class MainActivity extends AppCompatActivity {
 
     public MainActivity() throws IOException {
     }
-    /*
-    static final String[] letters = new String[] {
-            "A", "B", "C", "D",
-            "E", "F", "G", "H",
-            "I", "J", "K", "L",
-            "M", "N", "O", "P"
-    };
-
-    static int lastPicked = -1;
-    static boolean[] clicked = new boolean[]
-            { false, false, false, false,
-                false, false, false, false,
-                false, false, false, false,
-                false, false, false, false };*/
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,23 +65,19 @@ public class MainActivity extends AppCompatActivity {
                 android.R.layout.simple_list_item_1, frontend.get_letters());
 
         sManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-        mAccelerometer = sManager
-                .getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        mAccelerometer = sManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         mShakeListener = new ShakeListener();
         mShakeListener.setOnShakeListener(new ShakeListener.OnShakeListener() {
             @Override
             public void onShake() {
-                if(frontend.reset_click()) {
-                    for(int i=0; i< gridview.getChildCount(); i++) {
-                        TextView child = (TextView) gridview.getChildAt(i);
-                        if(frontend.tile_state[i] == true) {
-                            child.setBackgroundColor(Color.parseColor("#FF0000"));
-                        } else {
-                            child.setBackgroundColor(Color.parseColor("#FFFFFF"));
-                        }
-                    }
-                    currentWord.setText(frontend.get_candidate_word());
+                frontend = new frontend(words);
+                String[] letters = frontend.get_letters();
+                for(int i = 0; i < gridview.getChildCount(); i++) {
+                    TextView child = (TextView) gridview.getChildAt(i);
+                    child.setText(letters[i]);
                 }
+                refresh(gridview, currentWord, scoreview);
+                System.out.println("Restarted the game");
             }
         });
 

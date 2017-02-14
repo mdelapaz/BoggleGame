@@ -16,7 +16,6 @@ public class Backend {
     //in game over state, user should only be able to click reset to start a new game
     public int game_state;
 
-     String[] letters;
     //0 is easy, 1 is normal, 2 is difficult
     private int difficulty_level = 0;
     //length to a N*N boggle board
@@ -30,11 +29,6 @@ public class Backend {
         BoggleBoard boggle = new BoggleBoard(boggleBoardLength, wordsInDictionary, difficulty_level);
         letters = boggle.exportBoard();
     }
-
-    //dummy values until backend connected
-    ArrayList<String> submitted_words = new ArrayList<String>();
-    int score = 42;
-
 
     //METHODS - everything front end will need to call to get backend data
 
