@@ -10,6 +10,11 @@ import java.util.ArrayList;
 
 public class Backend {
 
+    //state of game
+    //right now, 0 = game in progress, 1 = game over
+    //in game over state, user should only be able to click reset to start a new game
+    public int game_state;
+
      String[] letters;
     //0 is easy, 1 is normal, 2 is difficult
      private int difficulty_level = 0;
@@ -22,8 +27,21 @@ public class Backend {
         letters = boggle.exportBoard();
     }
 
+    //dummy values until backend connected
     ArrayList<String> submitted_words = new ArrayList<String>();
     int score = 42;
+
+    //METHODS - everything front end will need to call to get backend data
+
+    //returns state of game, 0 for game in progress, 1 for game over
+    int get_game_state() {
+        return game_state;
+    }
+
+    //called by timer once
+    void times_up() {
+
+    }
 
     //return letter in tile at that grid position
     String get_letter(int tile_pos) {
@@ -33,10 +51,12 @@ public class Backend {
     //return current score
     String get_score() {
         return Integer.toString(score);
+        //TODO: replace this with connection to backend scoring system
     }
 
     ArrayList<String> get_submitted_words() {
         return submitted_words;
+        //TODO: replace this with connection to backend
     }
 
     //submit word, check vs dictionary

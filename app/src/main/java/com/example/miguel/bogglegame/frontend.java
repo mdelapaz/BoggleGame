@@ -1,23 +1,22 @@
 package com.example.miguel.bogglegame;
 
+import com.example.miguel.bogglegame.AppLogic.BoggleBoard;
+
 /**
  * Created by tpatecky on 2/8/2017.
  */
 
 public class frontend {
 
-    public frontend(String[] wordsInDictionary){
-        backend = new Backend(wordsInDictionary);
-    }
-    //Data
-    Backend backend;
-    //array of tile clicks for the current candidate word
-    int current_submission[] = new int[16];
-    //index in current_submission of last user click
-    int last_click = -1;
-    //state of tiles on grid (t clicked/f not clicked)
-    boolean tile_state[] = new boolean[16];
+    //data members
+    boolean game_over; //true if game has ended (timeout)
+    BoggleBoard backend;
+    int current_submission[];
+    int last_click;
+    boolean tile_state[];
+    String[] tile_letters;
 
+    //for each grid position, gives an array of adjacent grid positions
     static final int adjacency[][] = {
             {1,4,5},{0,2,4,5,6},{1,3,5,6,7},{2,6,7},
             {0,1,5,8,9},{0,1,2,4,6,8,9,10},{1,2,3,5,7,9,10,11},{2,3,6,10,11},
@@ -25,24 +24,35 @@ public class frontend {
             {8,9,13},{8,9,10,12,14},{9,10,11,13,15},{10,11,14}
     };
 
-    //Constructor
-    public frontend() {
+    int boggleBoardLength = 4;
+    int difficulty_level = 0;
+
+
+    public frontend(String[] wordsInDictionary){
+        current_submission = new int[16];
+        last_click = -1;
+        tile_state = new boolean[16];
         for(int i = 0; i < 16; i++) {
             tile_state[i] = false;
         }
+
+        backend = new BoggleBoard(boggleBoardLength, wordsInDictionary, difficulty_level);
+        tile_letters = backend.exportBoard();
     }
+
+
 
     //Public Methods
 
     public String[] get_letters() {
-        return backend.letters;
+        return tile_letters;
     }
 
     //returns the current candidate word as a string
     public String get_candidate_word() {
         String word = "";
         for(int i = 0; i <= last_click; i++) {
-            word += backend.get_letter(current_submission[i]);
+            word += tile_letters[current_submission[i]];
         }
         System.out.println(word);
         return word;
@@ -95,8 +105,8 @@ public class frontend {
     public boolean submit_click() {
         System.out.println("Clicked the submit button");
         if(last_click >= 2) { //more than 3 letters long
-            int result = backend.submit_word(current_submission, last_click + 1);
-            if(result == 0) { //success
+            int result = backend.checkWordAndUpdateScore(get_candidate_word());
+            if(result == 1) { //success
                 System.out.println("Word submission successful");
                 clear_click();
                 return true;
@@ -111,13 +121,13 @@ public class frontend {
             return false;
         }
     }
-
+    /*
     public boolean reset_click() {
         System.out.println("Reset button clicked");
         backend.reset_game();
         clear_click();
         return true;
-    }
+    }*/
 
     //Private Methods
     private boolean is_adjacent(int pos1, int pos2) {
