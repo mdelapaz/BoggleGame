@@ -21,7 +21,7 @@ public class BoggleBoard {
     //points for 6 letter words, 5 points for 7 letter words, and 10 points for words of 8 or more letters.
     private int score;
     //validWordsFoundByUser contains all valid words on boggle board that are found by user
-    private Set<String> validWordsFoundByUser = new HashSet<String>();
+    public Set<String> validWordsFoundByUser = new HashSet<String>();
 
     /**Initializes a boardLength * boardLength board with random characters*/
     public BoggleBoard(final int boardLength, final String[] wordsInDictionary, int difficultyLevel) {

@@ -59,6 +59,7 @@ public class MainActivity extends AppCompatActivity {
         final Button submitButton = (Button) findViewById(R.id.SubmitButton);
         final Button resetButton = (Button) findViewById(R.id.ResetButton);
         final TextView currentWord = (TextView) findViewById(R.id.CurrentWord);
+        final TextView foundWords = (TextView) findViewById(R.id.foundWords);
 
 
         final ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
@@ -77,7 +78,7 @@ public class MainActivity extends AppCompatActivity {
                     TextView child = (TextView) gridview.getChildAt(i);
                     child.setText(letters[i]);
                 }
-                refresh(gridview, currentWord, scoreview);
+                refresh(gridview, currentWord, scoreview, foundWords);
                 gameTimer = start_timer(timeview);
                 System.out.println("Restarted the game");
             }
@@ -102,7 +103,7 @@ public class MainActivity extends AppCompatActivity {
         clearButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 if(frontend.clear_click()) {
-                    refresh(gridview, currentWord, scoreview);
+                    refresh(gridview, currentWord, scoreview, foundWords);
                 }
             }
         });
@@ -110,7 +111,7 @@ public class MainActivity extends AppCompatActivity {
         submitButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 if(frontend.submit_click()) {
-                    refresh(gridview, currentWord, scoreview);
+                    refresh(gridview, currentWord, scoreview, foundWords);
                 }
             }
         });
@@ -124,7 +125,7 @@ public class MainActivity extends AppCompatActivity {
                     TextView child = (TextView) gridview.getChildAt(i);
                     child.setText(letters[i]);
                 }
-                refresh(gridview, currentWord, scoreview);
+                refresh(gridview, currentWord, scoreview, foundWords);
                 gameTimer = start_timer(timeview);
                 System.out.println("Restarted the game");
             }
@@ -133,7 +134,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //refreshes the views according to current game state
-    public void refresh(GridView gridview, TextView current_word, TextView current_score) {
+    public void refresh(GridView gridview, TextView current_word, TextView current_score, TextView words_found) {
         for(int i = 0; i < gridview.getChildCount(); i++) {
             TextView child = (TextView) gridview.getChildAt(i);
             if(frontend.tile_state[i] == true) {
@@ -144,6 +145,12 @@ public class MainActivity extends AppCompatActivity {
         }
         current_word.setText(frontend.get_candidate_word());
         current_score.setText("Score: " + Integer.toString(frontend.backend.getScore()));
+        String found_string = "";
+        for(String word : frontend.backend.validWordsFoundByUser) {
+            found_string += word;
+            found_string += "  ";
+        }
+        words_found.setText(found_string);
     }
 
     public CountDownTimer start_timer(final TextView timeview) {
