@@ -12,10 +12,13 @@ import java.util.Set;
 
 //dummy backend to get around slow actual backend.
 public class BackendDummy {
+
+/*
     String[] board = {"Z","Z","Z","Z",
                       "B","A","L","L",
                       "X","X","X","X",
                       "Q","Q","Q","Q"};
+
     boolean ball_found;
     int score;
 
@@ -48,4 +51,5 @@ public class BackendDummy {
     }
 
     public int getScore() {return score;}
+    */
 }

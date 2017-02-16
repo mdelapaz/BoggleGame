@@ -144,9 +144,9 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         current_word.setText(frontend.get_candidate_word());
-        current_score.setText("Score: " + Integer.toString(frontend.backend.getScore()));
+        current_score.setText("Score: " + Integer.toString(frontend.boggleBoard.getScore()));
         String found_string = "";
-        for(String word : frontend.backend.validWordsFoundByUser) {
+        for(String word : frontend.boggleBoard.validWordsFoundByUser) {
             found_string += word;
             found_string += "  ";
         }

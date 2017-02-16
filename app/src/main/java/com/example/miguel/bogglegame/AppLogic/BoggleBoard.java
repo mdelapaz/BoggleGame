@@ -10,7 +10,7 @@ public class BoggleBoard {
     private int boardLength;
     private char[][] board;
     //dictionary contains all valid words that can be used by player to earn points
-    private Set<String> dictionary = new HashSet<String>();
+    private Trie dictionary = new Trie();
     //validWordsOnBoard contains all valid words that are on boggle board
     private Set<String> validWordsOnBoard = new HashSet<String>();
     //difficulty level of boggle board, 0 means easy, 1 means normal and 2 means difficult
@@ -98,8 +98,8 @@ public class BoggleBoard {
         //add the word of cell just visited to the end of the word
         word += board[i][j];
 
-        //if word is valid, add it to validWordsOnBoard, else ignore
-        if(dictionary.contains(word.toLowerCase()))
+        //if word is valid / in dictionary, add it to validWordsOnBoard, else ignore
+        if(word.length() >= 3 && dictionary.search(word.toLowerCase()))
             validWordsOnBoard.add(word);
 
         for(int row = i - 1; row <= i + 1 && row < board.length; row++) {
@@ -107,7 +107,10 @@ public class BoggleBoard {
             for(int column = j - 1; column <= j+ 1 && column < board[0].length; column++) {
 
                 if(row >= 0 && column >= 0 && !visited[row][column]){
-                    findWordsOnBoard(word, visited, board, row, column);
+
+                    if(dictionary.hasPrefix(word.toLowerCase())){
+                        findWordsOnBoard(word, visited, board, row, column);
+                    }
                 }
             }
         }

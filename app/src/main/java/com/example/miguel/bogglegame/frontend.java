@@ -8,9 +8,11 @@ import com.example.miguel.bogglegame.AppLogic.BoggleBoard;
 
 public class frontend {
 
+    BoggleBoard boggleBoard;
+
     //data members
     boolean game_over; //true if game has ended (timeout)
-    BackendDummy backend;
+    //*************************BackendDummy backend;
     //BoggleBoard backend;  //real backend
     int current_submission[];
     int last_click;
@@ -28,8 +30,8 @@ public class frontend {
     int boggleBoardLength = 4;
     int difficulty_level = 0;
 
-
     public frontend(String[] wordsInDictionary){
+
         game_over = false;
         current_submission = new int[16];
         last_click = -1;
@@ -38,12 +40,12 @@ public class frontend {
             tile_state[i] = false;
         }
 
+        boggleBoard = new BoggleBoard(boggleBoardLength, wordsInDictionary, difficulty_level);
+        tile_letters = boggleBoard.exportBoard();
         //backend = new BoggleBoard(boggleBoardLength, wordsInDictionary, difficulty_level);
-        backend = new BackendDummy(boggleBoardLength, wordsInDictionary, difficulty_level);
-        tile_letters = backend.exportBoard();
+        //backend = new BackendDummy(boggleBoardLength, wordsInDictionary, difficulty_level);
+        //tile_letters = backend.exportBoard();
     }
-
-
 
     //Public Methods
 
@@ -117,7 +119,7 @@ public class frontend {
         }
         System.out.println("Clicked the submit button");
         if(last_click >= 2) { //more than 3 letters long
-            int result = backend.checkWordAndUpdateScore(get_candidate_word());
+            int result = boggleBoard.checkWordAndUpdateScore(get_candidate_word());
             if(result == 1) { //success
                 System.out.println("Word submission successful");
                 clear_click();
