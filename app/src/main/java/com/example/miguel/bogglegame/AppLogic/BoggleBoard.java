@@ -61,6 +61,7 @@ public class BoggleBoard {
         //create a boggle board with random characters and check to see if it has at least minValidWordsRequired valid words on boggle board
         do{
             generateRandomBoard();
+            // generateBoardUsingStandardDice();
             findValidWordsOnBoard();
         }while(validWordsOnBoard.size() <= minValidWordsRequired);
     }
@@ -73,6 +74,30 @@ public class BoggleBoard {
             for(int j = 0; j < 4; j++) {
                 char c= (char) (r.nextInt(26) + 'A');
                 board[i][j] = c;
+            }
+        }
+    }
+
+    private void generateBoardUsingStandardDice(){
+        String[] dice = {"AACIOT", "ABILTY", "ABJMOQ", "ACDEMP",
+                "ACELRS", "ADENVZ", "AHMORS", "BIFORX",
+                "DENOSW", "DKNOTU", "EEFHIY", "EGKLUY",
+                "EGINTV", "EHINPS", "ELPSTU", "GILRUW"};
+        String temp;
+
+        Random r = new Random();
+        int index;
+        for (int i = 15; i >= 0; i--){
+            index = r.nextInt(i+1);
+            temp = dice[index];
+            dice[index] = dice[i];
+            dice[i] = temp;
+        }
+
+        index = 0;
+        for(int i = 0; i < 4; i++){
+            for(int j = 0; j < 4; j++){
+                board[i][j] = dice[index++].charAt(r.nextInt(6));
             }
         }
     }
