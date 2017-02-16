@@ -33,18 +33,21 @@ public class BoggleBoard {
         //A valid grid of dice must contain at least two valid words in level easy, five valid words in level normal, and seven words in level difficult
         int minValidWordsRequired;
 
-        if(difficultyLevel == 0){
-            minValidWordsRequired = 2;
-
-        }else if(difficultyLevel == 1){
-            minValidWordsRequired = 5;
-
-        }else if(difficultyLevel == 2){
-            minValidWordsRequired = 7;
-
-        }else{
-            minValidWordsRequired = 2;      //start game in easy mode by default if no valid difficulty selected
+        switch(difficultyLevel) {
+            case 0:
+                minValidWordsRequired = 2;
+                break;
+            case 1:
+                minValidWordsRequired = 5;
+                break;
+            case 2:
+                minValidWordsRequired = 7;
+                break;
+            default:
+                minValidWordsRequired = 2; //start game in easy mode by default if no valid difficulty selected
+                break;
         }
+
 
         //add all words with 3 or more letters to dictionary
         for(String word : wordsInDictionary) {
