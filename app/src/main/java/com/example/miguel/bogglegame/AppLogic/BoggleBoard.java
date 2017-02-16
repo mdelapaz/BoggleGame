@@ -141,31 +141,18 @@ public class BoggleBoard {
             if(!validWordsFoundByUser.contains(word.toUpperCase())){
 
                 int wordLength = word.length();
-
-                switch (wordLength){
-
-                    case 3:
-                    case 4:
-                        score += 1;
-                        break;
-
-                    case 5:
-                        score += 2;
-                        break;
-
-                    case 6:
-                        score += 3;
-                        break;
-
-                    case 7:
-                        score += 5;
-                        break;
-
-                    //word of length 10 or more
-                    default:
-                        score += 10;
-                        break;
-                }
+                if(wordLength < 3)
+                    score +=0;
+                else if(wordLength == 3 || wordLength == 4)
+                    score += 1;
+                else if(wordLength == 5)
+                    score += 2;
+                else if(wordLength == 6)
+                    score += 3;
+                else if(wordLength == 7)
+                    score += 5;
+                else
+                    score += 10;
 
                 validWordsFoundByUser.add(word);
                 return 1;
