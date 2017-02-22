@@ -12,7 +12,7 @@ public class BoggleBoard {
     //dictionary contains all valid words that can be used by player to earn points
     private Trie dictionary = new Trie();
     //validWordsOnBoard contains all valid words that are on boggle board
-    private Set<String> validWordsOnBoard = new HashSet<String>();
+    public Set<String> validWordsOnBoard = new HashSet<String>();
     //difficulty level of boggle board, 0 means easy, 1 means normal and 2 means difficult
     //A valid grid of dice must contain at least two valid words in level easy, five valid words in level normal, and seven words in level difficult
     private int difficultyLevel;

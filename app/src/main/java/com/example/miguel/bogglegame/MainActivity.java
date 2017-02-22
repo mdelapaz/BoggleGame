@@ -18,6 +18,8 @@ import android.widget.TextView;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -60,6 +62,7 @@ public class MainActivity extends AppCompatActivity {
         final Button resetButton = (Button) findViewById(R.id.ResetButton);
         final TextView currentWord = (TextView) findViewById(R.id.CurrentWord);
         final TextView foundWords = (TextView) findViewById(R.id.foundWords);
+        final GridView wordList = (GridView) findViewById(R.id.WordList);
 
 
         final ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
@@ -79,7 +82,8 @@ public class MainActivity extends AppCompatActivity {
                     child.setText(letters[i]);
                 }
                 refresh(gridview, currentWord, scoreview, foundWords);
-                gameTimer = start_timer(timeview);
+                gameTimer = start_timer(timeview, wordList, foundWords, currentWord, submitButton, clearButton);
+                HideWordList(wordList, foundWords, currentWord, submitButton, clearButton);
                 System.out.println("Restarted the game");
             }
         });
@@ -126,11 +130,13 @@ public class MainActivity extends AppCompatActivity {
                     child.setText(letters[i]);
                 }
                 refresh(gridview, currentWord, scoreview, foundWords);
-                gameTimer = start_timer(timeview);
+                gameTimer = start_timer(timeview, wordList, foundWords, currentWord, submitButton, clearButton);
+                HideWordList(wordList, foundWords, currentWord, submitButton, clearButton);
                 System.out.println("Restarted the game");
             }
         });
-        gameTimer = start_timer(timeview);
+        gameTimer = start_timer(timeview, wordList, foundWords, currentWord, submitButton, clearButton);
+        HideWordList(wordList, foundWords, currentWord, submitButton, clearButton);
     }
 
     //refreshes the views according to current game state
@@ -153,7 +159,7 @@ public class MainActivity extends AppCompatActivity {
         words_found.setText(found_string);
     }
 
-    public CountDownTimer start_timer(final TextView timeview) {
+    public CountDownTimer start_timer(final TextView timeview, final GridView word_list, final TextView found_words, final TextView current_word, final Button submit_button, final Button clear_button) {
         return new CountDownTimer(180000, 1000) {
 
             public void onTick(long millisUntilFinished) {
@@ -163,8 +169,29 @@ public class MainActivity extends AppCompatActivity {
             public void onFinish() {
                 timeview.setText("Game Over");
                 frontend.game_over = true;
+                ShowWordList(word_list, found_words, current_word, submit_button, clear_button);
             }
         }.start();
+    }
+
+    public void ShowWordList(final GridView word_list, final TextView found_words, final TextView current_word, final Button submit_button, final Button clear_button){
+        word_list.setVisibility(View.VISIBLE);
+        found_words.setVisibility(View.INVISIBLE);
+        current_word.setVisibility(View.INVISIBLE);
+        submit_button.setVisibility(View.INVISIBLE);
+        clear_button.setVisibility(View.INVISIBLE);
+        int i = 0;
+        List<String> list = new ArrayList<>(frontend.boggleBoard.validWordsOnBoard);
+        final ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, list);
+        word_list.setAdapter(adapter);
+    }
+
+    public void HideWordList(final GridView word_list, final TextView found_words, final TextView current_word, final Button submit_button, final Button clear_button){
+        word_list.setVisibility(View.INVISIBLE);
+        found_words.setVisibility(View.VISIBLE);
+        current_word.setVisibility(View.VISIBLE);
+        submit_button.setVisibility(View.VISIBLE);
+        clear_button.setVisibility(View.VISIBLE);
     }
 
     @Override
