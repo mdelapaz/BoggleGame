@@ -1,8 +1,10 @@
 package com.example.miguel.bogglegame.AppLogic;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
+import java.util.ArrayList;
 
 public class BoggleBoard {
 
@@ -16,6 +18,8 @@ public class BoggleBoard {
     //difficulty level of boggle board, 0 means easy, 1 means normal and 2 means difficult
     //A valid grid of dice must contain at least two valid words in level easy, five valid words in level normal, and seven words in level difficult
     private int difficultyLevel;
+    //The list of users on the high score list
+    private ArrayList<User> highScoreList = new ArrayList<User>();
 
     //The score of each valid word is counted based on its length, 1 point for 3 or 4 letter words, 2 points for 5 letter words, 3
     //points for 6 letter words, 5 points for 7 letter words, and 10 points for words of 8 or more letters.
@@ -207,5 +211,36 @@ public class BoggleBoard {
         validWordsOnBoardCopy.removeAll(validWordsFoundByUser);
 
         return validWordsOnBoardCopy;
+    }
+
+    //Compare score to high score list, and see if they belong on there
+    //If they do, awesome! Put them in, sort, and return TRUE
+    //If not, don't do anything, and return FALSE
+    public boolean highScore(int score, String name) {
+        //If the list is empty or has less than 5 users, add them in!
+        if(highScoreList.isEmpty() || highScoreList.size() < 5){
+            User newUser = new User(name, score);
+            highScoreList.add(newUser);
+            return true;
+        }
+        //Any other case, we have to start comparing
+        for(User user : highScoreList) {
+            //We found a place to put their score!
+            if(score > user.score) {
+                User newUser = new User(name, score);
+                highScoreList.add(newUser); //Add in the new User and sort
+                Collections.sort(highScoreList); //Sort the list
+                //Check if there's more than 5 Users, if so, remove one
+                if(highScoreList.size() > 5) {
+                    highScoreList.remove(5);
+                    //Check if the user is still there, if not, they didn't belong anyway
+                    if(highScoreList.contains(newUser)){
+                        return true;
+                    }else
+                        return false;
+                }
+            }
+        }
+        return false;
     }
 }
