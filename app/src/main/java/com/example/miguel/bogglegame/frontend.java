@@ -3,7 +3,10 @@ package com.example.miguel.bogglegame;
 import com.example.miguel.bogglegame.AppLogic.BoggleBoard;
 import com.example.miguel.bogglegame.AppLogic.User;
 
+import java.text.Format;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -157,10 +160,18 @@ public class frontend {
     }
 
     public List<String> get_high_scores(){
+        ArrayList<User> hsList;
         List<String> scores = new ArrayList<String>();
 
-        for(User user : boggleBoard.highScoreList) {
-            scores.add(user.name + user.score);
+        hsList = boggleBoard.highScoreList;
+        Collections.sort(hsList, new Comparator<User>() {
+            public int compare(User o1, User o2) {
+                return Integer.compare(o2.score, o1.score);
+            }
+        });
+
+        for(User user : hsList) {
+            scores.add(String.format("%20s %10d", user.name, user.score));
         }
         return scores;
     }
