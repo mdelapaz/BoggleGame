@@ -1,19 +1,24 @@
 package com.example.miguel.bogglegame;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.res.AssetManager;
 import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.os.CountDownTimer;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.InputType;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.GridView;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import java.io.IOException;
@@ -28,6 +33,7 @@ public class MainActivity extends AppCompatActivity {
     private Sensor mAccelerometer;
     private ShakeListener mShakeListener;
     CountDownTimer gameTimer = null;
+    AlertDialog.Builder hsdialog;
 
     public MainActivity() throws IOException {
     }
@@ -68,6 +74,7 @@ public class MainActivity extends AppCompatActivity {
         final ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
                 android.R.layout.simple_list_item_1, frontend.get_letters());
 
+        CreateHighScoreDialog();
         sManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         mAccelerometer = sManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         mShakeListener = new ShakeListener();
@@ -159,8 +166,54 @@ public class MainActivity extends AppCompatActivity {
         words_found.setText(found_string);
     }
 
+    public void CreateNameDialog(){
+        AlertDialog.Builder dialog;
+        dialog = new AlertDialog.Builder(this);
+        dialog.setTitle("Enter your name");
+        final EditText nameInput = new EditText(this);
+        nameInput.setInputType(InputType.TYPE_CLASS_TEXT);
+        dialog.setView(nameInput);
+
+        dialog.setPositiveButton("OK", new DialogInterface.OnClickListener(){
+            @Override
+            public void onClick(DialogInterface dialog, int which){
+                frontend.send_score_name(nameInput.getText().toString());
+                ShowHighScores();
+            }
+        });
+
+        dialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener(){
+            @Override
+            public void onClick(DialogInterface dialog, int which){
+                dialog.cancel();
+            }
+        });
+        dialog.show();
+    }
+
+    public void CreateHighScoreDialog(){
+        hsdialog = new AlertDialog.Builder(this);
+        hsdialog.setTitle("High Scores");
+
+        hsdialog.setPositiveButton("OK", new DialogInterface.OnClickListener(){
+            @Override
+            public void onClick(DialogInterface hsdialog, int which){
+                hsdialog.dismiss();
+            }
+        });
+    }
+
+    public void ShowHighScores(){
+        List<String> list = frontend.get_high_scores();
+        ListView hsList = new ListView(this);
+        hsdialog.setView(hsList);
+        final ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, list);
+        hsList.setAdapter(adapter);
+        hsdialog.show();
+    }
+
     public CountDownTimer start_timer(final TextView timeview, final GridView word_list, final TextView found_words, final TextView current_word, final Button submit_button, final Button clear_button) {
-        return new CountDownTimer(180000, 1000) {
+        return new CountDownTimer(18000, 1000) {
 
             public void onTick(long millisUntilFinished) {
                 timeview.setText("Time Left: " + (millisUntilFinished / 1000) + " s");
@@ -168,8 +221,10 @@ public class MainActivity extends AppCompatActivity {
 
             public void onFinish() {
                 timeview.setText("Game Over");
-                frontend.game_over = true;
                 ShowWordList(word_list, found_words, current_word, submit_button, clear_button);
+                if(frontend.end_game()){
+                    CreateNameDialog();
+                }
             }
         }.start();
     }
@@ -180,7 +235,6 @@ public class MainActivity extends AppCompatActivity {
         current_word.setVisibility(View.INVISIBLE);
         submit_button.setVisibility(View.INVISIBLE);
         clear_button.setVisibility(View.INVISIBLE);
-        int i = 0;
         List<String> list = new ArrayList<>(frontend.boggleBoard.validWordsOnBoard);
         final ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, list);
         word_list.setAdapter(adapter);

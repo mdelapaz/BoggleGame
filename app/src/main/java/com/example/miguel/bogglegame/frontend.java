@@ -1,6 +1,10 @@
 package com.example.miguel.bogglegame;
 
 import com.example.miguel.bogglegame.AppLogic.BoggleBoard;
+import com.example.miguel.bogglegame.AppLogic.User;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by tpatecky on 2/8/2017.
@@ -134,6 +138,31 @@ public class frontend {
         } else {
             return false;
         }
+    }
+
+    public boolean end_game() {
+        game_over = true;
+        // if (boggleBoard.checkHighScore()) {
+        //  return true;
+        // }
+        // else {
+        //  return false;
+        // }
+        return true;
+    }
+
+    public void send_score_name(String name){
+        System.out.println("Submitting high score name: " + name);
+        // boggleBoard.setHighScoreName(name);
+    }
+
+    public List<String> get_high_scores(){
+        List<String> scores = new ArrayList<String>();
+
+        for(User user : boggleBoard.highScoreList) {
+            scores.add(user.name + user.score);
+        }
+        return scores;
     }
 
     //Private Methods

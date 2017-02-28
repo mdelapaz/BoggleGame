@@ -19,7 +19,7 @@ public class BoggleBoard {
     //A valid grid of dice must contain at least two valid words in level easy, five valid words in level normal, and seven words in level difficult
     private int difficultyLevel;
     //The list of users on the high score list
-    private ArrayList<User> highScoreList = new ArrayList<User>();
+    public ArrayList<User> highScoreList = new ArrayList<User>();
 
     //The score of each valid word is counted based on its length, 1 point for 3 or 4 letter words, 2 points for 5 letter words, 3
     //points for 6 letter words, 5 points for 7 letter words, and 10 points for words of 8 or more letters.
