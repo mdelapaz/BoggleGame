@@ -20,6 +20,7 @@ import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -123,6 +124,10 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if(frontend.submit_click()) {
                     refresh(gridview, currentWord, scoreview, foundWords);
+                    Toast.makeText(getApplicationContext(), "Valid word submitted!",Toast.LENGTH_SHORT).show();
+                }
+                else{
+                    Toast.makeText(getApplicationContext(), "Word not valid!", Toast.LENGTH_SHORT).show();
                 }
             }
         });
