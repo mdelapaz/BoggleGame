@@ -1,8 +1,12 @@
 package com.example.miguel.bogglegame.AppLogic;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Random;
+import java.util.Scanner;
 import java.util.Set;
 import java.util.ArrayList;
 
@@ -20,6 +24,8 @@ public class BoggleBoard {
     private int difficultyLevel;
     //The list of users on the high score list
     public ArrayList<User> highScoreList = new ArrayList<User>();
+    //This is the file name to store high scores
+    public String fileName = "highscores.txt";
 
     //The score of each valid word is counted based on its length, 1 point for 3 or 4 letter words, 2 points for 5 letter words, 3
     //points for 6 letter words, 5 points for 7 letter words, and 10 points for words of 8 or more letters.
@@ -211,6 +217,57 @@ public class BoggleBoard {
         validWordsOnBoardCopy.removeAll(validWordsFoundByUser);
 
         return validWordsOnBoardCopy;
+    }
+
+    //Loads in the high scores from highscores.txt, throws IOException.
+    public void loadHighscores() throws IOException {
+        File file = new File(fileName);
+        Scanner input;
+        try{
+            input = new Scanner(file);
+            String line;
+            highScoreList.clear();
+            while(input.hasNextLine()) {
+                line = input.nextLine();
+                String[] parts = line.split("\\~\\$\\~");
+                if(parts.length != 2) {
+                    //File is corrupt.
+                    System.out.println ("File highscores.txt is corrupt");
+                    System.exit(0);
+                    return;
+                }
+                String name = parts[0];
+                int score = Integer.parseInt(parts[1]);
+                User user = new User(name, score);
+                highScoreList.add(user);
+            }
+            input.close();
+        }catch (IOException ex) {
+            System.out.println(ex.toString());
+            System.exit(0);
+        }
+    }
+
+    public void saveHighscores() throws IOException {
+        File file = new File(fileName);
+        try {
+            if(!file.exists()) {
+                file.createNewFile();
+            }
+            FileWriter fw = new FileWriter(file);
+            for(User user : highScoreList) {
+                fw.write(user.name + "~$~" + user.score + "\n");
+            }
+            fw.close();
+        }catch (IOException ex) {
+            System.out.println(ex.toString());
+            System.exit(0);
+        }
+    }
+
+    //Function to be called from front end
+    public boolean highScore(String name) {
+        return highScore(this.score, name);
     }
 
     //Compare score to high score list, and see if they belong on there
