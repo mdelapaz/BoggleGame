@@ -145,18 +145,17 @@ public class frontend {
 
     public boolean end_game() {
         game_over = true;
-        // if (boggleBoard.checkHighScore()) {
-        //  return true;
-        // }
-        // else {
-        //  return false;
-        // }
-        return true;
+        if (boggleBoard.checkHighScore()) {
+          return true;
+        }
+        else {
+          return false;
+        }
     }
 
     public void send_score_name(String name){
         System.out.println("Submitting high score name: " + name);
-        // boggleBoard.setHighScoreName(name);
+        boggleBoard.highScore(name);
     }
 
     public List<String> get_high_scores(){

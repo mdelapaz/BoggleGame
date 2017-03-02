@@ -10,6 +10,7 @@ import java.util.Scanner;
 import java.util.Set;
 import java.util.ArrayList;
 
+
 public class BoggleBoard {
 
     //length of a N*N boggle board
@@ -39,6 +40,7 @@ public class BoggleBoard {
         score = 0;
         this.boardLength = boardLength;
         this.difficultyLevel = difficultyLevel;
+        loadHighscores();
 
         //A valid grid of dice must contain at least two valid words in level easy, five valid words in level normal, and seven words in level difficult
         int minValidWordsRequired;
@@ -220,10 +222,13 @@ public class BoggleBoard {
     }
 
     //Loads in the high scores from highscores.txt, throws IOException.
-    public void loadHighscores() throws IOException {
+    public void loadHighscores() {
         File file = new File(fileName);
         Scanner input;
         try{
+            if(!file.exists()) {
+                return;
+            }
             input = new Scanner(file);
             String line;
             highScoreList.clear();
@@ -248,7 +253,7 @@ public class BoggleBoard {
         }
     }
 
-    public void saveHighscores() throws IOException {
+    public void saveHighscores() {
         File file = new File(fileName);
         try {
             if(!file.exists()) {
@@ -265,6 +270,21 @@ public class BoggleBoard {
         }
     }
 
+    public boolean checkHighScore(){
+        //If the list is empty or has less than 5 users, add them in!
+        if(highScoreList.isEmpty() || highScoreList.size() < 5){
+            return true;
+        }
+        //Any other case, we have to start comparing
+        for(User user : highScoreList) {
+            //We found a place to put their score!
+            if(score > user.score) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     //Function to be called from front end
     public boolean highScore(String name) {
         return highScore(this.score, name);
@@ -278,6 +298,7 @@ public class BoggleBoard {
         if(highScoreList.isEmpty() || highScoreList.size() < 5){
             User newUser = new User(name, score);
             highScoreList.add(newUser);
+          //  saveHighscores();
             return true;
         }
         //Any other case, we have to start comparing
@@ -289,9 +310,10 @@ public class BoggleBoard {
                 Collections.sort(highScoreList); //Sort the list
                 //Check if there's more than 5 Users, if so, remove one
                 if(highScoreList.size() > 5) {
-                    highScoreList.remove(5);
+                    highScoreList.remove(1);
                     //Check if the user is still there, if not, they didn't belong anyway
                     if(highScoreList.contains(newUser)){
+                      //  saveHighscores();
                         return true;
                     }else
                         return false;
