@@ -1,5 +1,7 @@
 package com.example.miguel.bogglegame;
 
+import android.content.Context;
+
 import com.example.miguel.bogglegame.AppLogic.BoggleBoard;
 import com.example.miguel.bogglegame.AppLogic.User;
 
@@ -37,7 +39,7 @@ public class frontend {
     int boggleBoardLength = 4;
     int difficulty_level = 0;
 
-    public frontend(String[] wordsInDictionary){
+    public frontend(String[] wordsInDictionary, Context context){
 
         game_over = false;
         current_submission = new int[16];
@@ -47,7 +49,7 @@ public class frontend {
             tile_state[i] = false;
         }
 
-        boggleBoard = new BoggleBoard(boggleBoardLength, wordsInDictionary, difficulty_level);
+        boggleBoard = new BoggleBoard(boggleBoardLength, wordsInDictionary, difficulty_level, context);
         tile_letters = boggleBoard.exportBoard();
         //backend = new BoggleBoard(boggleBoardLength, wordsInDictionary, difficulty_level);
         //backend = new BackendDummy(boggleBoardLength, wordsInDictionary, difficulty_level);

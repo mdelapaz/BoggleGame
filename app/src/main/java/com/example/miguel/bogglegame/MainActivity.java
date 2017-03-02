@@ -56,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
             ex.printStackTrace();
         }
         words = text.split("\r\n");
-        frontend = new frontend(words);
+        frontend = new frontend(words, getApplicationContext());
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -83,7 +83,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onShake() {
                 gameTimer.cancel();
-                frontend = new frontend(words);
+                frontend = new frontend(words, getApplicationContext());
                 String[] letters = frontend.get_letters();
                 for(int i = 0; i < gridview.getChildCount(); i++) {
                     TextView child = (TextView) gridview.getChildAt(i);
@@ -135,7 +135,7 @@ public class MainActivity extends AppCompatActivity {
         resetButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 gameTimer.cancel();
-                frontend = new frontend(words);
+                frontend = new frontend(words, getApplicationContext());
                 String[] letters = frontend.get_letters();
                 for(int i = 0; i < gridview.getChildCount(); i++) {
                     TextView child = (TextView) gridview.getChildAt(i);
