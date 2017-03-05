@@ -33,10 +33,13 @@ public class MainActivity extends AppCompatActivity {
     private SensorManager sManager;
     private Sensor mAccelerometer;
     private ShakeListener mShakeListener;
+    private int difficulty;
+    private int gameMode;
+    private int players;
     CountDownTimer gameTimer = null;
     AlertDialog.Builder hsdialog;
 
-    public MainActivity() throws IOException {
+    public MainActivity() {
     }
 
     @Override
@@ -56,7 +59,7 @@ public class MainActivity extends AppCompatActivity {
             ex.printStackTrace();
         }
         words = text.split("\r\n");
-        frontend = new frontend(words, getApplicationContext());
+        frontend = new frontend(words, difficulty, getApplicationContext());
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -71,6 +74,9 @@ public class MainActivity extends AppCompatActivity {
         final TextView foundWords = (TextView) findViewById(R.id.foundWords);
         final GridView wordList = (GridView) findViewById(R.id.WordList);
 
+        players = getIntent().getIntExtra("EXTRA_NUM_PLAYERS", 0);
+        gameMode = getIntent().getIntExtra("EXTRA_MODE", 0);
+        difficulty = getIntent().getIntExtra("EXTRA_DIFFICULTY", 0);
 
         final ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
                 android.R.layout.simple_list_item_1, frontend.get_letters());
@@ -83,7 +89,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onShake() {
                 gameTimer.cancel();
-                frontend = new frontend(words, getApplicationContext());
+                frontend = new frontend(words, difficulty, getApplicationContext());
                 String[] letters = frontend.get_letters();
                 for(int i = 0; i < gridview.getChildCount(); i++) {
                     TextView child = (TextView) gridview.getChildAt(i);
@@ -134,17 +140,7 @@ public class MainActivity extends AppCompatActivity {
 
         resetButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                gameTimer.cancel();
-                frontend = new frontend(words, getApplicationContext());
-                String[] letters = frontend.get_letters();
-                for(int i = 0; i < gridview.getChildCount(); i++) {
-                    TextView child = (TextView) gridview.getChildAt(i);
-                    child.setText(letters[i]);
-                }
-                refresh(gridview, currentWord, scoreview, foundWords);
-                gameTimer = start_timer(timeview, wordList, foundWords, currentWord, submitButton, clearButton);
-                HideWordList(wordList, foundWords, currentWord, submitButton, clearButton);
-                System.out.println("Restarted the game");
+                finish();
             }
         });
         gameTimer = start_timer(timeview, wordList, foundWords, currentWord, submitButton, clearButton);

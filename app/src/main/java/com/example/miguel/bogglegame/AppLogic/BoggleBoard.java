@@ -76,8 +76,8 @@ public class BoggleBoard {
 
         //create a boggle board with random characters and check to see if it has at least minValidWordsRequired valid words on boggle board
         do{
-            generateRandomBoard();
-            // generateBoardUsingStandardDice();
+            // generateRandomBoard();
+            generateBoardUsingStandardDice();
             findValidWordsOnBoard();
         }while(validWordsOnBoard.size() <= minValidWordsRequired);
     }

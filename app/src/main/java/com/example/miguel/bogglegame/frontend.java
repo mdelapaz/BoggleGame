@@ -39,9 +39,10 @@ public class frontend {
     int boggleBoardLength = 4;
     int difficulty_level = 0;
 
-    public frontend(String[] wordsInDictionary, Context context){
+    public frontend(String[] wordsInDictionary, int difficulty, Context context){
 
         game_over = false;
+        difficulty_level = difficulty;
         current_submission = new int[16];
         last_click = -1;
         tile_state = new boolean[16];
