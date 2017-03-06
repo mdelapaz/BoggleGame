@@ -2,6 +2,8 @@ package com.example.miguel.bogglegame.AppLogic;
 
 import android.content.Context;
 
+import com.example.miguel.bogglegame.GameMode;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -11,7 +13,6 @@ import java.util.Random;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.ArrayList;
-
 
 public class BoggleBoard {
 
@@ -30,20 +31,28 @@ public class BoggleBoard {
     public ArrayList<User> highScoreList = new ArrayList<User>();
     //This is the file name to store high scores
     public String fileName = "highscores.txt";
-
     //The score of each valid word is counted based on its length, 1 point for 3 or 4 letter words, 2 points for 5 letter words, 3
     //points for 6 letter words, 5 points for 7 letter words, and 10 points for words of 8 or more letters.
     private int score;
     //validWordsFoundByUser contains all valid words on boggle board that are found by user
     public Set<String> validWordsFoundByUser = new HashSet<String>();
 
+    private GameMode gameMode;
+
+    //NOTE : use this constructor for single player mode
+    public BoggleBoard(final int boardLength, final String[] wordsInDictionary, int difficultyLevel, Context c){
+        this(boardLength, wordsInDictionary, difficultyLevel, c, GameMode.SinglePlayer);
+    }
+
+    //NOTE : use this constructor in following scenarios : MultiPlayer Mode where the player is game initiator
     /**Initializes a boardLength * boardLength board with random characters*/
-    public BoggleBoard(final int boardLength, final String[] wordsInDictionary, int difficultyLevel, Context c) {
+    public BoggleBoard(final int boardLength, final String[] wordsInDictionary, int difficultyLevel, Context c, GameMode gameMode) {
 
         score = 0;
         this.context = c;
         this.boardLength = boardLength;
         this.difficultyLevel = difficultyLevel;
+        this.gameMode = gameMode;
         loadHighscores();
 
         //A valid grid of dice must contain at least two valid words in level easy, five valid words in level normal, and seven words in level difficult
@@ -80,8 +89,44 @@ public class BoggleBoard {
             generateBoardUsingStandardDice();
             findValidWordsOnBoard();
         }while(validWordsOnBoard.size() <= minValidWordsRequired);
+
+        //if player on this device is the game initiator, push board and valid words to other device
+        if(gameMode != GameMode.SinglePlayer){
+
+            pushGameInfoToOtherDevice();
+        }
     }
 
+    //NOTE : use this constructor for MultiPlayer Mode where the player is NOT the game initiator
+    public BoggleBoard(int boardLength, Context context, char[][] board, int difficultyLevel, GameMode gameMode, final String[] wordsInDictionary, Set<String> validWordsOnBoard) {
+        score = 0;
+        this.boardLength = boardLength;
+        this.context = context;
+        this.board = board;
+        this.difficultyLevel = difficultyLevel;
+        this.gameMode = gameMode;
+        this.validWordsOnBoard = validWordsOnBoard;
+
+        loadHighscores();
+
+        //add all words with 3 or more letters to dictionary
+        for(String word : wordsInDictionary) {
+            if(word.length() >= 3){
+                dictionary.add(word);
+            }
+        }
+    }
+
+    // returns true if following are successfully pushed :
+    // board, boardLength, validWordsOnBoard, difficultyLevel, GameMode
+    // returns false in case of a failure
+    private boolean pushGameInfoToOtherDevice(){
+        //some code to push board to other device
+
+        return false;
+    }
+
+    @Deprecated
     private void generateRandomBoard(){
 
         Random r = new Random();
@@ -325,5 +370,43 @@ public class BoggleBoard {
             }
         }
         return false;
+    }
+
+    // *** Getters and Setters are defined below ***
+
+    public int getBoardLength() {
+        return boardLength;
+    }
+
+    public void setBoardLength(int boardLength) {
+        this.boardLength = boardLength;
+    }
+
+    public char[][] getBoard() {
+        return board;
+    }
+
+    public void setBoard(char[][] board) {
+        this.board = board;
+    }
+
+    public int getDifficultyLevel() {
+        return difficultyLevel;
+    }
+
+    public void setDifficultyLevel(int difficultyLevel) {
+        this.difficultyLevel = difficultyLevel;
+    }
+
+    public void setScore(int score) {
+        this.score = score;
+    }
+
+    public GameMode getGameMode() {
+        return gameMode;
+    }
+
+    public void setGameMode(GameMode gameMode) {
+        this.gameMode = gameMode;
     }
 }

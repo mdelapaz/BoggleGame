@@ -18,6 +18,8 @@ import java.util.List;
 public class frontend {
 
     BoggleBoard boggleBoard;
+    int boggleBoardLength = 4;
+    int difficulty_level = 0;
 
     //data members
     boolean game_over; //true if game has ended (timeout)
@@ -35,9 +37,6 @@ public class frontend {
             {4,5,9,12,13},{4,5,6,8,10,12,13,14},{5,6,7,9,11,13,14,15},{6,7,10,14,15},
             {8,9,13},{8,9,10,12,14},{9,10,11,13,15},{10,11,14}
     };
-
-    int boggleBoardLength = 4;
-    int difficulty_level = 0;
 
     public frontend(String[] wordsInDictionary, int difficulty, Context context){
 
