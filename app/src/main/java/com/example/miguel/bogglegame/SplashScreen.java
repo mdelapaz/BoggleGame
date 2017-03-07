@@ -10,9 +10,8 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 
 public class SplashScreen extends AppCompatActivity {
-    private int numPlayers;
+    private GameMode mode;
     private int difficulty;
-    private int mode;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,8 +30,7 @@ public class SplashScreen extends AppCompatActivity {
         final Button startButton = (Button) findViewById(R.id.startButton);
 
         difficulty = 0;
-        mode = 0;
-        numPlayers = 1;
+        mode = GameMode.SinglePlayer;
 
         easyButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -54,36 +52,38 @@ public class SplashScreen extends AppCompatActivity {
 
         basicButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                mode = 0;
+                mode = GameMode.BasicTwoPlayer;
             }
         });
 
         cutthroatButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                mode = 1;
+                mode = GameMode.CutThroatTwoPLayer;
             }
         });
 
         onePlayer.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                difficultyGroup.setVisibility(View.VISIBLE);
                 modeGroup.setVisibility(View.INVISIBLE);
-                numPlayers = 1;
+                mode = GameMode.SinglePlayer;
             }
         });
 
         twoPlayer.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                difficultyGroup.setVisibility(View.INVISIBLE);
                 modeGroup.setVisibility(View.VISIBLE);
-                numPlayers = 2;
+                if(cutthroatButton.isChecked()){
+                    mode = GameMode.CutThroatTwoPLayer;
+                }
+                else{
+                    mode = GameMode.BasicTwoPlayer;
+                }
             }
         });
 
         startButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                intent.putExtra("EXTRA_NUM_PLAYERS", numPlayers);
                 intent.putExtra("EXTRA_DIFFICULTY", difficulty);
                 intent.putExtra("EXTRA_MODE", mode);
                 startActivity(intent);

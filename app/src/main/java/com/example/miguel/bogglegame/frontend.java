@@ -20,6 +20,7 @@ public class frontend {
     BoggleBoard boggleBoard;
     int boggleBoardLength = 4;
     int difficulty_level = 0;
+    GameMode game_mode;
 
     //data members
     boolean game_over; //true if game has ended (timeout)
@@ -38,9 +39,10 @@ public class frontend {
             {8,9,13},{8,9,10,12,14},{9,10,11,13,15},{10,11,14}
     };
 
-    public frontend(String[] wordsInDictionary, int difficulty, Context context){
+    public frontend(String[] wordsInDictionary, int difficulty, GameMode mode, Context context){
 
         game_over = false;
+        game_mode = mode;
         difficulty_level = difficulty;
         current_submission = new int[16];
         last_click = -1;
