@@ -12,6 +12,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.InputType;
 import android.util.Log;
+import android.view.DragEvent;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -35,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
     private ShakeListener mShakeListener;
     private int difficulty;
     private GameMode mode;
+    private int currPosition = -1;
     CountDownTimer gameTimer = null;
     AlertDialog.Builder hsdialog;
 
@@ -117,6 +120,35 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        gridview.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                int currX, currY;
+                final int action = event.getAction();
+                switch (action & MotionEvent.ACTION_MASK) {
+                    case MotionEvent.ACTION_DOWN: {
+                        currX = (int) event.getX();
+                        currY = (int) event.getY();
+                        processDragPoints(gridview,gridview.pointToPosition(currX, currY), currentWord);
+                        break;
+                    }
+                    case MotionEvent.ACTION_MOVE: {
+                        final int historySize = event.getHistorySize();
+                        for (int h = 0; h < historySize; h++) {
+                            currX = (int) event.getHistoricalX(h);
+                            currY = (int) event.getHistoricalY(h);
+                            processDragPoints(gridview, gridview.pointToPosition(currX, currY), currentWord);
+                        }
+                        currX = (int) event.getX();
+                        currY = (int) event.getY();
+                        processDragPoints(gridview, gridview.pointToPosition(currX, currY), currentWord);
+                        break;
+                    }
+                }
+                return true;
+            }
+        });
+
         clearButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 if(frontend.clear_click()) {
@@ -144,6 +176,33 @@ public class MainActivity extends AppCompatActivity {
         });
         gameTimer = start_timer(timeview, wordList, foundWords, currentWord, submitButton, clearButton);
         HideWordList(wordList, foundWords, currentWord, submitButton, clearButton);
+    }
+
+    private void processDragPoints(GridView g, int pos, TextView currentWord){
+        int posToChange;
+
+        if(pos == -1) return;
+        if(currPosition == -1 || pos != currPosition) {
+            System.out.printf("currPosition = %d, pos = %d\n", currPosition, pos);
+            System.out.printf("last_click = %d\n", frontend.last_click);
+            if(frontend.last_click > 0 && pos == frontend.current_submission[frontend.last_click-1]){
+                posToChange = currPosition;
+                currPosition = pos;
+            }
+            else {
+                posToChange = pos;
+                currPosition = pos;
+            }
+            TextView child = (TextView) g.getChildAt(posToChange);
+            if (frontend.tile_click(posToChange) == true) {
+                if (frontend.tile_state[posToChange] == true) {
+                    child.setBackgroundColor(Color.parseColor("#FF0000"));
+                } else {
+                    child.setBackgroundColor(Color.parseColor("#FFFFFF"));
+                }
+                currentWord.setText(frontend.get_candidate_word());
+            }
+        }
     }
 
     //refreshes the views according to current game state
