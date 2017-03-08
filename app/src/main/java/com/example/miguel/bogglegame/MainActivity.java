@@ -1,5 +1,6 @@
 package com.example.miguel.bogglegame;
 
+import android.bluetooth.BluetoothSocket;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.res.AssetManager;
@@ -37,6 +38,7 @@ public class MainActivity extends AppCompatActivity {
     private ShakeListener mShakeListener;
     private int difficulty;
     private GameMode mode;
+    private boolean is_host;
     private int currPosition = -1;
     CountDownTimer gameTimer = null;
     AlertDialog.Builder hsdialog;
@@ -64,6 +66,16 @@ public class MainActivity extends AppCompatActivity {
 
         mode = (GameMode) getIntent().getSerializableExtra("EXTRA_MODE");
         difficulty = getIntent().getIntExtra("EXTRA_DIFFICULTY", 0);
+        if(mode != GameMode.SinglePlayer) {
+            //are we hosting this game?
+            is_host = getIntent().getBooleanExtra("EXTRA_IS_HOST", false);
+            BluetoothSocket socket = SocketHandler.getSocket();
+            if(socket != null) {
+                //there's a socket in my pocket
+                //TODO: add instantiating bluetoothservice class
+            }
+
+        }
 
         frontend = new frontend(words, difficulty, mode, getApplicationContext());
 

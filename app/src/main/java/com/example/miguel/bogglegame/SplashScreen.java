@@ -1,5 +1,6 @@
 package com.example.miguel.bogglegame;
 
+import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
@@ -83,10 +84,18 @@ public class SplashScreen extends AppCompatActivity {
 
         startButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                intent.putExtra("EXTRA_DIFFICULTY", difficulty);
-                intent.putExtra("EXTRA_MODE", mode);
-                startActivity(intent);
+                //if two player try to do bluetooth
+                if(mode == GameMode.BasicTwoPlayer || mode == GameMode.CutThroatTwoPLayer) {
+                    Intent intent = new Intent(getApplicationContext(), LobbyScreen.class);
+                    intent.putExtra("EXTRA_DIFFICULTY", difficulty);
+                    intent.putExtra("EXTRA_MODE", mode);
+                    startActivity(intent);
+                } else {
+                    Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                    intent.putExtra("EXTRA_DIFFICULTY", difficulty);
+                    intent.putExtra("EXTRA_MODE", mode);
+                    startActivity(intent);
+                }
             }
         });
     }
