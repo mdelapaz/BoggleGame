@@ -118,30 +118,24 @@ public class MainActivity extends AppCompatActivity {
 
         gridview.setAdapter(adapter);
 
-        gridview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            public void onItemClick(AdapterView<?> parent, View v,
-                                    int position, long id) {
-                if(frontend.tile_click(position) == true) {
-                    if(frontend.tile_state[position] == true) {
-                        v.setBackgroundColor(Color.parseColor("#FF0000"));
-                    } else {
-                        v.setBackgroundColor(Color.parseColor("#FFFFFF"));
-                    }
-                    currentWord.setText(frontend.get_candidate_word());
-                }
-            }
-        });
-
         gridview.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                int currX, currY;
+                int currX, currY, position;
                 final int action = event.getAction();
                 switch (action & MotionEvent.ACTION_MASK) {
                     case MotionEvent.ACTION_DOWN: {
-                        currX = (int) event.getX();
-                        currY = (int) event.getY();
-                        processDragPoints(gridview,gridview.pointToPosition(currX, currY), currentWord);
+                        position = gridview.pointToPosition((int) event.getX(), (int) event.getY());
+                        TextView child = (TextView) gridview.getChildAt(position);
+                        if(frontend.tile_click(position) == true) {
+                            if(frontend.tile_state[position] == true) {
+                                child.setBackgroundColor(Color.parseColor("#FF0000"));
+                            } else {
+                                child.setBackgroundColor(Color.parseColor("#FFFFFF"));
+                            }
+                            currentWord.setText(frontend.get_candidate_word());
+                            currPosition = position;
+                        }
                         break;
                     }
                     case MotionEvent.ACTION_MOVE: {
