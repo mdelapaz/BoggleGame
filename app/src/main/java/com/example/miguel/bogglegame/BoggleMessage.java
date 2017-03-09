@@ -1,11 +1,13 @@
 package com.example.miguel.bogglegame;
 
+import java.util.Arrays;
+
 /**
  * Created by tpatecky on 3/9/17.
  */
 
 public class BoggleMessage {
-    public MessageType type;
+    public int type;
 
     //if we're telling the client how to build the game
     String[] letters;
@@ -15,19 +17,80 @@ public class BoggleMessage {
     //if we're playing the game
     int[] word_submission;
 
-    //construct from byte array
+    //construct from byte array sent by other phone
     BoggleMessage(byte[] input) {
         //figure out contents of byte stream
+        type = (int)input[0];
+        switch(type) {
+            case MessageType.SupplyBoard:
+                if((int)input[1] == 0) {
+                    mode = GameMode.BasicTwoPlayer;
+                } else {
+                    mode = GameMode.CutThroatTwoPLayer;
+                }
+                difficulty = (int)input[2];
+                letters = new String[16];
+                String s = new String(input);
+                for(int i=0;i<16;i++){
+                    letters[i] = s.substring(i+3,i+4);
+                }
+                break;
+            case MessageType.SubmitWord:
+                word_submission = new int[input.length-1];
+                for(int i = 0;i<word_submission.length;i++){
+                    word_submission[i] = (int)input[i+1];
+                }
+                break;
+        }
     }
-    //construct board state to send
-    BoggleMessage(String[] letters, String[] word_list) {
+
+    //construct message with no data
+    BoggleMessage(int p_type) {
+        type = p_type;
+    }
+    //construct message with board & game mode
+    BoggleMessage(String[] p_letters, GameMode p_mode, int p_difficulty) {
         type = MessageType.SupplyBoard;
-        letters = letters;
-        word_list = word_list;
+        letters = p_letters;
+        mode = p_mode;
+        difficulty = p_difficulty;
+    }
+    //construct message with word submission
+    BoggleMessage(int[] submit) {
+        type = MessageType.SubmitWord;
+        word_submission = submit;
     }
 
     //turn this into a byte array to send across bluetooth
     public byte[] output() {
-        return null;
+        byte[] retval;
+        switch(type) {
+            case MessageType.SupplyBoard:
+                retval = new byte[3+letters.length];
+                retval[0] = (byte)type;
+                if(mode == GameMode.BasicTwoPlayer) {
+                    retval[1] = 0;
+                } else {
+                    retval[1] = 1;
+                }
+                retval[2] = (byte)difficulty;
+                byte[] ltrbytes = Arrays.toString(letters).getBytes();
+                for(int i=3;i<retval.length;i++) {
+                    retval[i] = ltrbytes[i-3];
+                }
+                break;
+            case MessageType.SubmitWord:
+                retval = new byte[1+word_submission.length];
+                retval[0] = (byte)type;
+                for(int i=0;i<word_submission.length;i++) {
+                    retval[i+1] = (byte)word_submission[i];
+                }
+                break;
+            default: //no data with message
+                retval = new byte[1];
+                retval[0] = (byte)type;
+                break;
+        }
+        return retval;
     }
 }

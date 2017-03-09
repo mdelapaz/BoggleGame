@@ -111,9 +111,9 @@ public class MainActivity extends AppCompatActivity {
                             }
                             break;
                         case BluetoothService.MESSAGE_WRITE:
-                            byte[] writeBuf = (byte[]) msg.obj;
+                            //byte[] writeBuf = (byte[]) msg.obj;
                             // construct a string from the buffer
-                            String writeMessage = new String(writeBuf);
+                            //String writeMessage = new String(writeBuf);
                             // Toast.makeText(getApplicationContext(), "Message Sent:  " + writeMessage, Toast.LENGTH_SHORT).show();
                             break;
                         case BluetoothService.MESSAGE_READ:
@@ -149,8 +149,8 @@ public class MainActivity extends AppCompatActivity {
                     finish();
                 } else {
                     //test message
-                    String testmsg = "This is from the host";
-                    btService.write(testmsg.getBytes());
+                    //String testmsg = "This is from the host";
+                    //btService.write(testmsg.getBytes());
                 }
             } else {
                 //look for paired devices
@@ -170,8 +170,8 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(getApplicationContext(), "Could not connect to host", Toast.LENGTH_SHORT).show();
                 } else {
                     //test message
-                    String testmsg = "This is from the client";
-                    btService.write(testmsg.getBytes());
+                    //String testmsg = "This is from the client";
+                    //btService.write(testmsg.getBytes());
                 }
             }
 
@@ -486,9 +486,7 @@ public class MainActivity extends AppCompatActivity {
     private void dealWithMessage(byte[] input) {
         BoggleMessage message = new BoggleMessage(input);
         switch (message.type) {
-            case RequestBoard:
-                break;
-            case SupplyBoard:
+            case MessageType.SupplyBoard:
                 break;
             //add more message types
         }
