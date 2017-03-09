@@ -85,7 +85,7 @@ public class MainActivity extends AppCompatActivity {
             btAdapter = BluetoothAdapter.getDefaultAdapter();
             if (btAdapter == null) {
                 Toast.makeText(getApplicationContext(), "This device is not bluetooth capable.", Toast.LENGTH_SHORT).show();
-                goBacktoSplash();
+                finish();
             }
             if(!btAdapter.isEnabled()) {
                 Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
@@ -111,7 +111,7 @@ public class MainActivity extends AppCompatActivity {
                             byte[] writeBuf = (byte[]) msg.obj;
                             // construct a string from the buffer
                             String writeMessage = new String(writeBuf);
-                            Toast.makeText(getApplicationContext(), "Message Sent:  " + writeMessage, Toast.LENGTH_SHORT).show();
+                            // Toast.makeText(getApplicationContext(), "Message Sent:  " + writeMessage, Toast.LENGTH_SHORT).show();
                             break;
                         case BluetoothService.MESSAGE_READ:
                             byte[] readBuf = (byte[]) msg.obj;
@@ -134,12 +134,14 @@ public class MainActivity extends AppCompatActivity {
             if(is_host) {
                 btService.start();
                 //need to wait here until client connects
-                int lazytimeout = 10000000;
+                int lazytimeout = 1000000000;
                 while(lazytimeout > 0 && btService.getState() != BluetoothService.STATE_CONNECTED) {
                     lazytimeout--;
                 }
                 if(btService.getState() != BluetoothService.STATE_CONNECTED) {
                     Toast.makeText(getApplicationContext(), "Could not connect to host", Toast.LENGTH_SHORT).show();
+                    btService.stop();
+                    finish();
                 } else {
                     //test message
                     String testmsg = "This is from the host";
@@ -363,6 +365,47 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void ShowHighScores(){
+        switch(mode){
+            case SinglePlayer:
+                switch(difficulty){
+                    case 0:
+                        hsdialog.setMessage("Single Player - Easy");
+                        break;
+                    case 1:
+                        hsdialog.setMessage("Single Player - Medium");
+                        break;
+                    case 2:
+                        hsdialog.setMessage("Single Player - Hard");
+                        break;
+                }
+                break;
+            case BasicTwoPlayer:
+                switch(difficulty){
+                    case 0:
+                        hsdialog.setMessage("Two Player Basic - Easy");
+                        break;
+                    case 1:
+                        hsdialog.setMessage("Two Player Basic - Medium");
+                        break;
+                    case 2:
+                        hsdialog.setMessage("Two Player Basic - Hard");
+                        break;
+                }
+                break;
+            case CutThroatTwoPLayer:
+                switch(difficulty){
+                    case 0:
+                        hsdialog.setMessage("Two Player Cutthroat - Easy");
+                        break;
+                    case 1:
+                        hsdialog.setMessage("Two Player Cutthroat - Medium");
+                        break;
+                    case 2:
+                        hsdialog.setMessage("Two Player Cutthroat - Hard");
+                        break;
+                }
+                break;
+        }
         List<String> list = frontend.get_high_scores();
         ListView hsList = new ListView(this);
         hsdialog.setView(hsList);
@@ -405,12 +448,6 @@ public class MainActivity extends AppCompatActivity {
         current_word.setVisibility(View.VISIBLE);
         submit_button.setVisibility(View.VISIBLE);
         clear_button.setVisibility(View.VISIBLE);
-    }
-
-    private void goBacktoSplash() {
-        Intent intent = new Intent(getApplicationContext(), SplashScreen.class);
-        startActivity(intent);
-        finish();
     }
 
     @Override
