@@ -33,7 +33,7 @@
 
     <TextView
         android:id="@+id/CurrentWord"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="17dp"
         android:layout_marginEnd="16dp"
         android:layout_marginLeft="16dp"
@@ -93,22 +93,22 @@
 
     <GridView
         android:id="@+id/LetterGrid"
-        android:scrollbars="none"
-        android:columnWidth="80dp"
-        android:numColumns="4"
-        android:verticalSpacing="0dp"
-        android:horizontalSpacing="0dp"
-        android:layout_height="300dp"
         android:layout_width="300dp"
-        android:gravity="center"
-        android:stretchMode="spacingWidthUniform"
-        android:layout_marginStart="16dp"
-        app:layout_constraintLeft_toLeftOf="parent"
-        android:layout_marginLeft="16dp"
+        android:layout_height="300dp"
         android:layout_marginEnd="16dp"
-        app:layout_constraintRight_toRightOf="parent"
+        android:layout_marginLeft="16dp"
         android:layout_marginRight="16dp"
+        android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
+        android:columnWidth="80dp"
+        android:gravity="center"
+        android:horizontalSpacing="10dp"
+        android:numColumns="4"
+        android:scrollbars="none"
+        android:stretchMode="columnWidth"
+        android:verticalSpacing="10dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/ResetButton" />
 
     <GridView

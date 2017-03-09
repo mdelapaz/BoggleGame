@@ -239,11 +239,11 @@ public class MainActivity extends AppCompatActivity {
                         for (int h = 0; h < historySize; h++) {
                             currX = (int) event.getHistoricalX(h);
                             currY = (int) event.getHistoricalY(h);
-                            processDragPoints(gridview, gridview.pointToPosition(currX, currY), currentWord);
+                            processDragPoints(gridview, currX, currY, currentWord);
                         }
                         currX = (int) event.getX();
                         currY = (int) event.getY();
-                        processDragPoints(gridview, gridview.pointToPosition(currX, currY), currentWord);
+                        processDragPoints(gridview, currX, currY, currentWord);
                         break;
                     }
                 }
@@ -280,13 +280,17 @@ public class MainActivity extends AppCompatActivity {
         HideWordList(wordList, foundWords, currentWord, submitButton, clearButton);
     }
 
-    private void processDragPoints(GridView g, int pos, TextView currentWord){
+    private void processDragPoints(GridView g, int x, int y, TextView currentWord){
         int posToChange;
 
+        int pos = g.pointToPosition(x, y);
+
         if(pos == -1) return;
+
         if(currPosition == -1 || pos != currPosition) {
             System.out.printf("currPosition = %d, pos = %d\n", currPosition, pos);
             System.out.printf("last_click = %d\n", frontend.last_click);
+
             if(frontend.last_click > 0 && pos == frontend.current_submission[frontend.last_click-1]){
                 posToChange = currPosition;
                 currPosition = pos;
@@ -296,6 +300,7 @@ public class MainActivity extends AppCompatActivity {
                 currPosition = pos;
             }
             TextView child = (TextView) g.getChildAt(posToChange);
+
             if (frontend.tile_click(posToChange) == true) {
                 if (frontend.tile_state[posToChange] == true) {
                     child.setBackgroundColor(Color.parseColor("#FF0000"));
