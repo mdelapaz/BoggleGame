@@ -182,6 +182,9 @@ public class frontend {
         for(User user : hsList) {
             scores.add(String.format("%20s %10d", user.name, user.score));
         }
+        for(int i = hsList.size(); i < 5; i++){
+            scores.add(String.format("%20s %10d", "Nobody", 0));
+        }
         return scores;
     }
 
