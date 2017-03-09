@@ -121,7 +121,7 @@ public class LobbyScreen extends AppCompatActivity implements AdapterView.OnItem
     }
 
     private void startGame(BluetoothSocket socket, boolean is_host) {
-        SocketHandler.setSocket(socket);
+        //SocketHandler.setSocket(socket);
         Intent intent = new Intent(getApplicationContext(), MainActivity.class);
         intent.putExtra("EXTRA_DIFFICULTY", difficulty);
         intent.putExtra("EXTRA_MODE", mode);

@@ -1,12 +1,18 @@
 package com.example.miguel.bogglegame;
 
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.res.AssetManager;
 import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.os.CountDownTimer;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -25,6 +31,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -34,10 +41,17 @@ public class MainActivity extends AppCompatActivity {
     private ShakeListener mShakeListener;
     private int difficulty;
     private GameMode mode;
-    private boolean is_host;
     private int currPosition = -1;
     CountDownTimer gameTimer = null;
     AlertDialog.Builder hsdialog;
+
+    //multiplayer things
+    private boolean is_host;
+    private BluetoothAdapter btAdapter;
+    Set<BluetoothDevice> devices;
+    private BluetoothService btService;
+    private Handler mHandler;
+    private String mConnectedDeviceName = null;
 
     public MainActivity() {
     }
@@ -62,14 +76,88 @@ public class MainActivity extends AppCompatActivity {
 
         mode = (GameMode) getIntent().getSerializableExtra("EXTRA_MODE");
         difficulty = getIntent().getIntExtra("EXTRA_DIFFICULTY", 0);
+
+        //if 2p, try to set up multiplayer connection
         if(mode != GameMode.SinglePlayer) {
             //are we hosting this game?
             is_host = getIntent().getBooleanExtra("EXTRA_IS_HOST", false);
-            BluetoothSocket socket = SocketHandler.getSocket();
-            if(socket != null) {
-                //there's a socket in my pocket
-                //TODO: add instantiating bluetoothservice class
-                //note, if we're the client we need to get the game settings (cutthroatness,difficulty) from the host and match them
+            //is bluetooth enabled?
+            btAdapter = BluetoothAdapter.getDefaultAdapter();
+            if (btAdapter == null) {
+                Toast.makeText(getApplicationContext(), "This device is not bluetooth capable.", Toast.LENGTH_SHORT).show();
+                goBacktoSplash();
+            }
+            if(!btAdapter.isEnabled()) {
+                Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+                startActivityForResult(intent, 1);
+            }
+            //make handler
+            mHandler = new Handler() {
+                @Override
+                public void handleMessage(Message msg) {
+                    switch (msg.what) {
+                        case BluetoothService.MESSAGE_STATE_CHANGE:
+                            switch (msg.arg1) {
+                                case BluetoothService.STATE_CONNECTED:
+                                    break;
+                                case BluetoothService.STATE_CONNECTING:
+                                    break;
+                                case BluetoothService.STATE_LISTEN:
+                                case BluetoothService.STATE_NONE:
+                                    break;
+                            }
+                            break;
+                        case BluetoothService.MESSAGE_WRITE:
+                            byte[] writeBuf = (byte[]) msg.obj;
+                            // construct a string from the buffer
+                            String writeMessage = new String(writeBuf);
+                            Toast.makeText(getApplicationContext(), "Message Sent:  " + writeMessage, Toast.LENGTH_SHORT).show();
+                            break;
+                        case BluetoothService.MESSAGE_READ:
+                            byte[] readBuf = (byte[]) msg.obj;
+                            // construct a string from the valid bytes in the buffer
+                            String readMessage = new String(readBuf, 0, msg.arg1);
+                            Toast.makeText(getApplicationContext(), "Message Received: " + readMessage, Toast.LENGTH_SHORT).show();
+                            break;
+                        case BluetoothService.MESSAGE_DEVICE_NAME:
+                            // save the connected device's name
+                            mConnectedDeviceName = msg.getData().getString(BluetoothService.DEVICE_NAME);
+                            Toast.makeText(getApplicationContext(), "Connected to " + mConnectedDeviceName, Toast.LENGTH_SHORT).show();
+                            break;
+                        case BluetoothService.MESSAGE_TOAST:
+                                Toast.makeText(getApplicationContext(), msg.getData().getString(BluetoothService.TOAST), Toast.LENGTH_SHORT).show();
+                            break;
+                    }
+                }
+            };
+            btService = new BluetoothService(getApplicationContext(),mHandler);
+            if(is_host) {
+                btService.start();
+                //need to wait here until client connects
+                int lazytimeout = 10000000;
+                while(lazytimeout > 0 && btService.getState() != BluetoothService.STATE_CONNECTED) {
+                    lazytimeout--;
+                }
+                if(btService.getState() != BluetoothService.STATE_CONNECTED) {
+                    Toast.makeText(getApplicationContext(), "Could not connect to host", Toast.LENGTH_SHORT).show();
+                }
+            } else {
+                //look for paired devices
+                devices = btAdapter.getBondedDevices();
+                //try to connect
+                for(BluetoothDevice device:devices){
+                    btService.connect(device);
+                    //wait to see what happens
+                    while(btService.getState() == BluetoothService.STATE_CONNECTING) {}
+                    //connected, we're done
+                    if(btService.getState() == BluetoothService.STATE_CONNECTED) {
+                        break;
+                    }
+                }
+                //if no connection go back
+                if(btService.getState() != BluetoothService.STATE_CONNECTED) {
+                    Toast.makeText(getApplicationContext(), "Could not connect to host", Toast.LENGTH_SHORT).show();
+                }
             }
 
         }
@@ -310,6 +398,12 @@ public class MainActivity extends AppCompatActivity {
         clear_button.setVisibility(View.VISIBLE);
     }
 
+    private void goBacktoSplash() {
+        Intent intent = new Intent(getApplicationContext(), SplashScreen.class);
+        startActivity(intent);
+        finish();
+    }
+
     @Override
     public void onResume() {
         super.onResume();
@@ -322,5 +416,13 @@ public class MainActivity extends AppCompatActivity {
         // Unregister the Sensor Manager onPause
         sManager.unregisterListener(mShakeListener);
         super.onPause();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (btService != null) {
+            btService.stop();
+        }
     }
 }

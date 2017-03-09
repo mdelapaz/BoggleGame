@@ -41,6 +41,7 @@ public class SplashScreen extends AppCompatActivity {
         final RadioButton basicButton = (RadioButton) findViewById(R.id.basicButton);
         final RadioButton cutthroatButton = (RadioButton) findViewById(R.id.cutthroatButton);
         final RadioGroup modeGroup = (RadioGroup) findViewById(R.id.modeGroup);
+        final Button clientButton = (Button) findViewById(R.id.clientButton);
         final Button startButton = (Button) findViewById(R.id.startButton);
         final Button scoresButton = (Button) findViewById(R.id.highScoreButton);
 
@@ -81,12 +82,16 @@ public class SplashScreen extends AppCompatActivity {
             public void onClick(View v) {
                 modeGroup.setVisibility(View.INVISIBLE);
                 mode = GameMode.SinglePlayer;
+                startButton.setText("START");
+                clientButton.setVisibility(View.INVISIBLE);
             }
         });
 
         twoPlayer.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 modeGroup.setVisibility(View.VISIBLE);
+                startButton.setText("HOST");
+                clientButton.setVisibility(View.VISIBLE);
                 if(cutthroatButton.isChecked()){
                     mode = GameMode.CutThroatTwoPLayer;
                 }
@@ -96,20 +101,28 @@ public class SplashScreen extends AppCompatActivity {
             }
         });
 
-        startButton.setOnClickListener(new View.OnClickListener() {
+        clientButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                //if two player try to do bluetooth
                 if(mode == GameMode.BasicTwoPlayer || mode == GameMode.CutThroatTwoPLayer) {
-                    Intent intent = new Intent(getApplicationContext(), LobbyScreen.class);
-                    intent.putExtra("EXTRA_DIFFICULTY", difficulty);
-                    intent.putExtra("EXTRA_MODE", mode);
-                    startActivity(intent);
-                } else {
                     Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                     intent.putExtra("EXTRA_DIFFICULTY", difficulty);
                     intent.putExtra("EXTRA_MODE", mode);
+                    intent.putExtra("EXTRA_IS_HOST", false);
                     startActivity(intent);
                 }
+            }
+        });
+
+        startButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                //if two player try to do bluetooth
+                    Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                    intent.putExtra("EXTRA_DIFFICULTY", difficulty);
+                    intent.putExtra("EXTRA_MODE", mode);
+                    if(mode == GameMode.BasicTwoPlayer || mode == GameMode.CutThroatTwoPLayer) {
+                        intent.putExtra("EXTRA_IS_HOST",true);
+                    }
+                    startActivity(intent);
             }
         });
 
