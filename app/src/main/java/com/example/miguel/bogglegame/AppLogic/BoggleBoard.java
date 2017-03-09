@@ -115,14 +115,13 @@ public class BoggleBoard {
     }
 
     //NOTE : use this constructor for MultiPlayer Mode where the player is NOT the game initiator
-    public BoggleBoard(int boardLength, Context context, char[][] board, int difficultyLevel, GameMode gameMode, final String[] wordsInDictionary, Set<String> validWordsOnBoard) {
+    public BoggleBoard(int boardLength, Context context, char[][] board, int difficultyLevel, GameMode gameMode, final String[] wordsInDictionary) {
         score = 0;
         this.boardLength = boardLength;
         this.context = context;
         this.board = board;
         this.difficultyLevel = difficultyLevel;
         this.gameMode = gameMode;
-        this.validWordsOnBoard = validWordsOnBoard;
 
         loadHighscores();
 
@@ -132,6 +131,8 @@ public class BoggleBoard {
                 dictionary.add(word);
             }
         }
+
+        findValidWordsOnBoard();
     }
 
     // NOTE: use this constructor when you want to access high scores without actually playing a game
@@ -259,11 +260,13 @@ public class BoggleBoard {
     //returns 1 if the word submitted is a valid word and has never been submitted by user before
     //return 2 if word is a valid word but has been submitted by user before
     // score is updated accordingly
-    public int checkWordAndUpdateScore(String word, int[] sequenceOfTiles) throws InputMismatchException{
+    //if checkForClient is true, score is returned
+    public int checkWordAndUpdateScore(String word, int[] sequenceOfTiles, boolean checkForClient) throws InputMismatchException{
 
         if(gameMode == GameMode.CutThroatTwoPLayer){
 
             if(sequenceOfTiles == null){
+                System.err.println("error from checkWordAndUpdateScore() in BoggleBoard.java");
                 throw new InputMismatchException();
             }
 
