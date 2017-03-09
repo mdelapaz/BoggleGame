@@ -140,6 +140,10 @@ public class MainActivity extends AppCompatActivity {
                 }
                 if(btService.getState() != BluetoothService.STATE_CONNECTED) {
                     Toast.makeText(getApplicationContext(), "Could not connect to host", Toast.LENGTH_SHORT).show();
+                } else {
+                    //test message
+                    String testmsg = "This is from the host";
+                    btService.write(testmsg.getBytes());
                 }
             } else {
                 //look for paired devices
@@ -157,8 +161,13 @@ public class MainActivity extends AppCompatActivity {
                 //if no connection go back
                 if(btService.getState() != BluetoothService.STATE_CONNECTED) {
                     Toast.makeText(getApplicationContext(), "Could not connect to host", Toast.LENGTH_SHORT).show();
+                } else {
+                    //test message
+                    String testmsg = "This is from the client";
+                    btService.write(testmsg.getBytes());
                 }
             }
+
 
         }
 
