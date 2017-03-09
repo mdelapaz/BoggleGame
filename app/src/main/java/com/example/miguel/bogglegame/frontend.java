@@ -51,7 +51,7 @@ public class frontend {
             tile_state[i] = false;
         }
 
-        boggleBoard = new BoggleBoard(boggleBoardLength, wordsInDictionary, difficulty_level, context);
+        boggleBoard = new BoggleBoard(boggleBoardLength, wordsInDictionary, difficulty_level, context, GameMode.CutThroatTwoPLayer);
         tile_letters = boggleBoard.exportBoard();
         //backend = new BoggleBoard(boggleBoardLength, wordsInDictionary, difficulty_level);
         //backend = new BackendDummy(boggleBoardLength, wordsInDictionary, difficulty_level);
@@ -136,7 +136,7 @@ public class frontend {
         }
         System.out.println("Clicked the submit button");
         if(last_click >= 2) { //more than 3 letters long
-            int result = boggleBoard.checkWordAndUpdateScore(get_candidate_word());
+            int result = boggleBoard.checkWordAndUpdateScore(get_candidate_word(), null);
             if(result == 1) { //success
                 System.out.println("Word submission successful");
                 clear_click();
