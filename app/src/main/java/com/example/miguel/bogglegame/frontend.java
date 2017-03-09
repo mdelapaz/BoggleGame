@@ -51,7 +51,7 @@ public class frontend {
             tile_state[i] = false;
         }
 
-        boggleBoard = new BoggleBoard(boggleBoardLength, wordsInDictionary, difficulty_level, context, GameMode.CutThroatTwoPLayer);
+        boggleBoard = new BoggleBoard(boggleBoardLength, wordsInDictionary, difficulty_level, context, mode);
         tile_letters = boggleBoard.exportBoard();
         //backend = new BoggleBoard(boggleBoardLength, wordsInDictionary, difficulty_level);
         //backend = new BackendDummy(boggleBoardLength, wordsInDictionary, difficulty_level);
