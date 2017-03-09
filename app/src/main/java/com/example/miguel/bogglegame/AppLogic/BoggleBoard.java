@@ -30,7 +30,7 @@ public class BoggleBoard {
     //The list of users on the high score list
     public ArrayList<User> highScoreList = new ArrayList<User>();
     //This is the file name to store high scores
-    public String fileName = "highscores.txt";
+    public String fileName = "";
     //The score of each valid word is counted based on its length, 1 point for 3 or 4 letter words, 2 points for 5 letter words, 3
     //points for 6 letter words, 5 points for 7 letter words, and 10 points for words of 8 or more letters.
     private int score;
@@ -272,6 +272,7 @@ public class BoggleBoard {
 
     //Loads in the high scores from highscores.txt, throws IOException.
     public void loadHighscores() {
+        this.fileName = "HS" + this.gameMode + this.difficultyLevel + ".txt";
         File file = new File(context.getFilesDir(), fileName);
         Scanner input;
         try{
@@ -286,7 +287,7 @@ public class BoggleBoard {
                 String[] parts = line.split("\\~\\$\\~");
                 if(parts.length != 2) {
                     //File is corrupt.
-                    System.out.println ("File highscores.txt is corrupt");
+                    System.out.println ("File " + this.fileName + " is corrupt");
                     System.exit(0);
                     return;
                 }
@@ -303,6 +304,7 @@ public class BoggleBoard {
     }
 
     public void saveHighscores() {
+        this.fileName = "HS" + this.gameMode + this.difficultyLevel + ".txt";
         File file = new File(context.getFilesDir(), fileName);
         try {
             if(!file.exists()) {
