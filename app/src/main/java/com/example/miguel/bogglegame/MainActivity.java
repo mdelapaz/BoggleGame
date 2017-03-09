@@ -52,6 +52,9 @@ public class MainActivity extends AppCompatActivity {
     private BluetoothService btService;
     private Handler mHandler;
     private String mConnectedDeviceName = null;
+    private boolean requestingBoard = false;
+    private boolean readyToPlay = false;
+
 
     public MainActivity() {
     }
@@ -115,9 +118,11 @@ public class MainActivity extends AppCompatActivity {
                             break;
                         case BluetoothService.MESSAGE_READ:
                             byte[] readBuf = (byte[]) msg.obj;
+                            dealWithMessage(readBuf);
                             // construct a string from the valid bytes in the buffer
-                            String readMessage = new String(readBuf, 0, msg.arg1);
-                            Toast.makeText(getApplicationContext(), "Message Received: " + readMessage, Toast.LENGTH_SHORT).show();
+                            //String readMessage = new String(readBuf, 0, msg.arg1);
+                            //Toast.makeText(getApplicationContext(), "Message Received: " + readMessage, Toast.LENGTH_SHORT).show();
+
                             break;
                         case BluetoothService.MESSAGE_DEVICE_NAME:
                             // save the connected device's name
@@ -477,21 +482,17 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private class BoggleMessage {
-        public MessageType type;
-        String[] letters;
-        String[] word_list;
-        int[] word_submission;
-
-        //constructor for message with no data
-        BoggleMessage(MessageType p_type) {
-            type = p_type;
-        }
-        //constructor for message with board setup
-        BoggleMessage(MessageType p_type, String[] p_letters, String[] p_word_list) {
-            type = p_type;
-            letters = p_letters;
-            word_list = p_word_list;
+    //method for acting on recieved messages
+    private void dealWithMessage(byte[] input) {
+        BoggleMessage message = new BoggleMessage(input);
+        switch (message.type) {
+            case RequestBoard:
+                break;
+            case SupplyBoard:
+                break;
+            //add more message types
         }
     }
+
+
 }
