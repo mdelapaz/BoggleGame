@@ -471,4 +471,22 @@ public class MainActivity extends AppCompatActivity {
             btService.stop();
         }
     }
+
+    private class BoggleMessage {
+        public MessageType type;
+        String[] letters;
+        String[] word_list;
+        int[] word_submission;
+
+        //constructor for message with no data
+        BoggleMessage(MessageType p_type) {
+            type = p_type;
+        }
+        //constructor for message with board setup
+        BoggleMessage(MessageType p_type, String[] p_letters, String[] p_word_list) {
+            type = p_type;
+            letters = p_letters;
+            word_list = p_word_list;
+        }
+    }
 }
