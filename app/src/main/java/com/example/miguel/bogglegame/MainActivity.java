@@ -73,6 +73,7 @@ public class MainActivity extends AppCompatActivity {
             if(socket != null) {
                 //there's a socket in my pocket
                 //TODO: add instantiating bluetoothservice class
+                //note, if we're the client we need to get the game settings (cutthroatness,difficulty) from the host and match them
             }
 
         }

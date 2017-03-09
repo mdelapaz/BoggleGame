@@ -36,19 +36,19 @@ public class LobbyScreen extends AppCompatActivity implements AdapterView.OnItem
     ArrayList<BluetoothDevice> devices;
 
     ListView deviceList;
-    Button hostButton;
+    //Button hostButton;
 
     protected static final int SUCCESS_CLIENT_CONNECT = 0;
     protected static final int SUCCESS_HOST_CONNECT = 1;
 
     //array index = difficulty
-    public static final UUID basic2p[] = {UUID.fromString("6f4932cf-e466-4207-befc-8903535ea09b"),
+    /*public static final UUID basic2p[] = {UUID.fromString("6f4932cf-e466-4207-befc-8903535ea09b"),
                                         UUID.fromString("8b83eb1d-5e89-43aa-8ea6-3e95f885117e"),
                                         UUID.fromString("537ab9a1-0aec-416f-800f-243d37b7013c")};
     public static final UUID cutthroat2p[] = {UUID.fromString("0610a7fd-2962-4015-ad39-5dec674245dd"),
                                             UUID.fromString("cf57fe1e-4360-43a1-96e6-7ee57f1c8e69"),
-                                            UUID.fromString("3cfb97fd-3f64-46ff-ad88-96252698be37")};
-    UUID myUUID;
+                                            UUID.fromString("3cfb97fd-3f64-46ff-ad88-96252698be37")};*/
+    public static final UUID myUUID = UUID.fromString("6f4932cf-e466-4207-befc-8903535ea09b");
     AcceptThread accept;
 
     BluetoothAdapter btAdapter;
@@ -90,6 +90,8 @@ public class LobbyScreen extends AppCompatActivity implements AdapterView.OnItem
             }
             getPairedDevices();
             startDiscovery();
+            accept = new AcceptThread();
+            accept.start();
         }
     }
 
@@ -115,6 +117,7 @@ public class LobbyScreen extends AppCompatActivity implements AdapterView.OnItem
     private void goBackToSplash() {
         Intent intent = new Intent(getApplicationContext(), SplashScreen.class);
         startActivity(intent);
+        finish();
     }
 
     private void startGame(BluetoothSocket socket, boolean is_host) {
@@ -124,6 +127,7 @@ public class LobbyScreen extends AppCompatActivity implements AdapterView.OnItem
         intent.putExtra("EXTRA_MODE", mode);
         intent.putExtra("EXTRA_IS_HOST", is_host);
         startActivity(intent);
+        finish();
     }
 
     private void init() {
@@ -131,12 +135,12 @@ public class LobbyScreen extends AppCompatActivity implements AdapterView.OnItem
         mode = (GameMode) getIntent().getSerializableExtra("EXTRA_MODE");
         difficulty = getIntent().getIntExtra("EXTRA_DIFFICULTY", 0);
         //set UUID
-        if(mode == GameMode.BasicTwoPlayer) {
+        /*if(mode == GameMode.BasicTwoPlayer) {
             myUUID = basic2p[difficulty];
         } else {
             myUUID = cutthroat2p[difficulty];
-        }
-        hostButton = (Button)findViewById(R.id.hostButton);
+        }*/
+        //hostButton = (Button)findViewById(R.id.hostButton);
         deviceList = (ListView)findViewById(R.id.deviceList);
         deviceList.setOnItemClickListener(this);
         deviceListAdapter = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,0);
@@ -168,16 +172,10 @@ public class LobbyScreen extends AppCompatActivity implements AdapterView.OnItem
 
             }
         };
-        filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
-        registerReceiver(receiver, filter);
-        filter = new IntentFilter(BluetoothAdapter.ACTION_DISCOVERY_STARTED);
-        registerReceiver(receiver, filter);
-        filter = new IntentFilter(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
-        registerReceiver(receiver, filter);
-        filter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
-        registerReceiver(receiver, filter);
+        myRegisterReceiver();
 
-        hostButton.setOnClickListener(new View.OnClickListener() {
+
+        /*hostButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 //try to make discoverable
                 if(btAdapter.getScanMode() != BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE) {
@@ -194,14 +192,44 @@ public class LobbyScreen extends AppCompatActivity implements AdapterView.OnItem
                     accept.start();
                 }
             }
-        });
+        });*/
 
+    }
+
+    private void myRegisterReceiver() {
+        filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
+        registerReceiver(receiver, filter);
+        filter = new IntentFilter(BluetoothAdapter.ACTION_DISCOVERY_STARTED);
+        registerReceiver(receiver, filter);
+        filter = new IntentFilter(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
+        registerReceiver(receiver, filter);
+        filter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
+        registerReceiver(receiver, filter);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         unregisterReceiver(receiver);
+        if(accept != null && accept.isAlive()) {
+            accept.cancel();
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        myRegisterReceiver();
+        accept.start();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unregisterReceiver(receiver);
+        if(accept != null && accept.isAlive()) {
+            accept.cancel();
+        }
     }
 
     @Override
@@ -216,19 +244,22 @@ public class LobbyScreen extends AppCompatActivity implements AdapterView.OnItem
 
 
     public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-        if(btAdapter.isDiscovering()){
-            btAdapter.cancelDiscovery();
-        }
-        if(deviceListAdapter.getItem(arg2).contains("(Paired)")){
-            //connect to device as client
+        try {
 
-            BluetoothDevice selectedDevice = devices.get(arg2);
-            ConnectThread connect = new ConnectThread(selectedDevice);
-            connect.start();
-        }
-        else{
-            //TODO try to pair devices
-            Toast.makeText(getApplicationContext(), "device is not paired, screw u", Toast.LENGTH_SHORT).show();
+            if (deviceListAdapter.getItem(arg2).contains("(Paired)")) {
+                //connect to device as client
+                if (btAdapter.isDiscovering()) {
+                    btAdapter.cancelDiscovery();
+                }
+                BluetoothDevice selectedDevice = devices.get(arg2);
+                accept.cancel();
+                ConnectThread connect = new ConnectThread(selectedDevice);
+                connect.start();
+            } else {
+                Toast.makeText(getApplicationContext(), "device is not paired, screw u", Toast.LENGTH_SHORT).show();
+            }
+        } catch (NullPointerException e) {
+            return;
         }
     }
 
