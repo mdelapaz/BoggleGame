@@ -128,7 +128,7 @@ public class MainActivity extends AppCompatActivity {
                             if(frontend.tile_state[position] == true) {
                                 child.setBackgroundColor(Color.parseColor("#FF0000"));
                             } else {
-                                child.setBackgroundColor(Color.parseColor("#FFFFFF"));
+                                child.setBackgroundColor(Color.parseColor("#FAFAFA"));
                             }
                             currentWord.setText(frontend.get_candidate_word());
                             currPosition = position;
@@ -201,7 +201,7 @@ public class MainActivity extends AppCompatActivity {
                 if (frontend.tile_state[posToChange] == true) {
                     child.setBackgroundColor(Color.parseColor("#FF0000"));
                 } else {
-                    child.setBackgroundColor(Color.parseColor("#FFFFFF"));
+                    child.setBackgroundColor(Color.parseColor("#FAFAFA"));
                 }
                 currentWord.setText(frontend.get_candidate_word());
             }
@@ -215,7 +215,7 @@ public class MainActivity extends AppCompatActivity {
             if(frontend.tile_state[i] == true) {
                 child.setBackgroundColor(Color.parseColor("#FF0000"));
             } else {
-                child.setBackgroundColor(Color.parseColor("#FFFFFF"));
+                child.setBackgroundColor(Color.parseColor("#FAFAFA"));
             }
         }
         current_word.setText(frontend.get_candidate_word());
