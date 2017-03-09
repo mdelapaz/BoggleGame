@@ -7,8 +7,10 @@ import com.example.miguel.bogglegame.GameMode;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.InputMismatchException;
 import java.util.Random;
 import java.util.Scanner;
 import java.util.Set;
@@ -24,6 +26,9 @@ public class BoggleBoard {
     private Trie dictionary = new Trie();
     //validWordsOnBoard contains all valid words that are on boggle board
     public Set<String> validWordsOnBoard = new HashSet<String>();
+    //
+    private ArrayList<String> validWordsOnBoardCutThroat = new ArrayList<String>();
+    private ArrayList<CutThroatWord> validWordsFoundCutThroat = new ArrayList<CutThroatWord>();
     //difficulty level of boggle board, 0 means easy, 1 means normal and 2 means difficult
     //A valid grid of dice must contain at least two valid words in level easy, five valid words in level normal, and seven words in level difficult
     private int difficultyLevel;
@@ -84,11 +89,23 @@ public class BoggleBoard {
         board = new char[boardLength][boardLength];
 
         //create a boggle board with random characters and check to see if it has at least minValidWordsRequired valid words on boggle board
-        do{
-            // generateRandomBoard();
-            generateBoardUsingStandardDice();
-            findValidWordsOnBoard();
-        }while(validWordsOnBoard.size() <= minValidWordsRequired);
+        if(gameMode == GameMode.CutThroatTwoPLayer){
+
+            do{
+
+                generateBoardUsingStandardDice();
+                findValidWordsOnBoard();
+
+            }while(validWordsOnBoardCutThroat.size() <= minValidWordsRequired);
+        }
+        else{
+
+            do{
+                generateBoardUsingStandardDice();
+                findValidWordsOnBoard();
+            }while(validWordsOnBoard.size() <= minValidWordsRequired);
+        }
+
 
         //if player on this device is the game initiator, push board and valid words to other device
         if(gameMode != GameMode.SinglePlayer){
@@ -194,7 +211,17 @@ public class BoggleBoard {
 
         //if word is valid / in dictionary, add it to validWordsOnBoard, else ignore
         if(word.length() >= 3 && dictionary.search(word.toLowerCase()))
-            validWordsOnBoard.add(word);
+        {
+            //with cutthroat mode, we need to consider the scenario of 2 same valid words being on board
+            // and thus they need to be stored in a list instead of storing them in a set
+            if(this.gameMode == GameMode.CutThroatTwoPLayer){
+                validWordsOnBoardCutThroat.add(word);
+            }
+            else{
+                validWordsOnBoard.add(word);
+            }
+        }
+
 
         for(int row = i - 1; row <= i + 1 && row < board.length; row++) {
 
@@ -232,36 +259,78 @@ public class BoggleBoard {
     //returns 1 if the word submitted is a valid word and has never been submitted by user before
     //return 2 if word is a valid word but has been submitted by user before
     // score is updated accordingly
-    public int checkWordAndUpdateScore(String word){
+    public int checkWordAndUpdateScore(String word, int[] sequenceOfTiles) throws InputMismatchException{
 
-        //if word is valid and is on board
-        if(validWordsOnBoard.contains(word.toUpperCase())){
+        if(gameMode == GameMode.CutThroatTwoPLayer){
 
-            //if word has never been submitted by user before, add word to validWordsFoundByUser and update score
-            if(!validWordsFoundByUser.contains(word.toUpperCase())){
-
-                int wordLength = word.length();
-                if(wordLength < 3)
-                    score +=0;
-                else if(wordLength == 3 || wordLength == 4)
-                    score += 1;
-                else if(wordLength == 5)
-                    score += 2;
-                else if(wordLength == 6)
-                    score += 3;
-                else if(wordLength == 7)
-                    score += 5;
-                else
-                    score += 10;
-
-                validWordsFoundByUser.add(word);
-                return 1;
-            } else{
-
-                return 2;
+            if(sequenceOfTiles == null){
+                throw new InputMismatchException();
             }
+
+            //if word is valid and is on board
+            if(validWordsOnBoardCutThroat.contains(word.toUpperCase())){
+
+                CutThroatWord cutThroatWord = new CutThroatWord(sequenceOfTiles, word);
+
+                //if word has never been submitted by user before, add word to validWordsFoundCutThroat and update score
+                if(!validWordsFoundCutThroat.contains(cutThroatWord)){
+
+                    int wordLength = word.length();
+                    if(wordLength < 3)
+                        score +=0;
+                    else if(wordLength == 3 || wordLength == 4)
+                        score += 1;
+                    else if(wordLength == 5)
+                        score += 2;
+                    else if(wordLength == 6)
+                        score += 3;
+                    else if(wordLength == 7)
+                        score += 5;
+                    else
+                        score += 10;
+
+                    validWordsFoundCutThroat.add(cutThroatWord);
+                    validWordsOnBoardCutThroat.remove(word);
+
+                    return 1;
+                } else{
+
+                    return 2;
+                }
+            }
+            return 0;
         }
-        return 0;
+
+        else{
+            //if word is valid and is on board
+            if(validWordsOnBoard.contains(word.toUpperCase())){
+
+                //if word has never been submitted by user before, add word to validWordsFoundByUser and update score
+                if(!validWordsFoundByUser.contains(word.toUpperCase())){
+
+                    int wordLength = word.length();
+                    if(wordLength < 3)
+                        score +=0;
+                    else if(wordLength == 3 || wordLength == 4)
+                        score += 1;
+                    else if(wordLength == 5)
+                        score += 2;
+                    else if(wordLength == 6)
+                        score += 3;
+                    else if(wordLength == 7)
+                        score += 5;
+                    else
+                        score += 10;
+
+                    validWordsFoundByUser.add(word);
+                    return 1;
+                } else{
+
+                    return 2;
+                }
+            }
+            return 0;
+        }
     }
 
     public int getScore() {
@@ -279,13 +348,13 @@ public class BoggleBoard {
     }
 
     //Loads in the high scores from highscores.txt, throws IOException.
-    public void loadHighscores() {
+    public boolean loadHighscores() {
         this.fileName = "HS" + this.gameMode + this.difficultyLevel + ".txt";
         File file = new File(context.getFilesDir(), fileName);
         Scanner input;
         try{
             if(!file.exists()) {
-                return;
+                return false;
             }
             input = new Scanner(file);
             String line;
@@ -296,8 +365,7 @@ public class BoggleBoard {
                 if(parts.length != 2) {
                     //File is corrupt.
                     System.out.println ("File " + this.fileName + " is corrupt");
-                    System.exit(0);
-                    return;
+                    return false;
                 }
                 String name = parts[0];
                 int score = Integer.parseInt(parts[1]);
@@ -307,11 +375,13 @@ public class BoggleBoard {
             input.close();
         }catch (IOException ex) {
             System.out.println(ex.toString());
-            System.exit(0);
+            return false;
         }
+
+        return true;
     }
 
-    public void saveHighscores() {
+    public boolean saveHighscores() {
         this.fileName = "HS" + this.gameMode + this.difficultyLevel + ".txt";
         File file = new File(context.getFilesDir(), fileName);
         try {
@@ -325,8 +395,10 @@ public class BoggleBoard {
             fw.close();
         }catch (IOException ex) {
             System.out.println(ex.toString());
-            System.exit(0);
+            return false;
         }
+
+        return true;
     }
 
     public boolean checkHighScore(){
