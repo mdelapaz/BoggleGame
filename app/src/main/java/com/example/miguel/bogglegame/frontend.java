@@ -58,6 +58,12 @@ public class frontend {
         //tile_letters = backend.exportBoard();
     }
 
+    public frontend(int difficulty, GameMode mode, Context context){
+        game_mode = mode;
+        difficulty_level = difficulty;
+        boggleBoard = new BoggleBoard(context, difficulty_level, game_mode);
+    }
+
     //Public Methods
 
     public String[] get_letters() {

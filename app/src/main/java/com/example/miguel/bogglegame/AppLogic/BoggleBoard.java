@@ -117,6 +117,14 @@ public class BoggleBoard {
         }
     }
 
+    // NOTE: use this constructor when you want to access high scores without actually playing a game
+    public BoggleBoard(Context context, int difficultyLevel, GameMode gameMode){
+        this.context = context;
+        this.difficultyLevel = difficultyLevel;
+        this.gameMode = gameMode;
+        loadHighscores();
+    }
+
     // returns true if following are successfully pushed :
     // board, boardLength, validWordsOnBoard, difficultyLevel, GameMode
     // returns false in case of a failure

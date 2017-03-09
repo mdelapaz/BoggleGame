@@ -1,23 +1,37 @@
 package com.example.miguel.bogglegame;
 
 import android.bluetooth.BluetoothAdapter;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.provider.MediaStore;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.view.ContextThemeWrapper;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ListView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+
+import com.example.miguel.bogglegame.AppLogic.BoggleBoard;
+
+import java.util.List;
 
 public class SplashScreen extends AppCompatActivity {
     private GameMode mode;
     private int difficulty;
+    private AlertDialog.Builder hsdialog;
+    private frontend f;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash_screen);
+        CreateHighScoreDialog();
 
         final RadioButton onePlayer = (RadioButton) findViewById(R.id.singlePlayerButton);
         final RadioButton twoPlayer = (RadioButton) findViewById(R.id.twoPlayerButton);
@@ -27,8 +41,8 @@ public class SplashScreen extends AppCompatActivity {
         final RadioButton basicButton = (RadioButton) findViewById(R.id.basicButton);
         final RadioButton cutthroatButton = (RadioButton) findViewById(R.id.cutthroatButton);
         final RadioGroup modeGroup = (RadioGroup) findViewById(R.id.modeGroup);
-        final RadioGroup difficultyGroup = (RadioGroup) findViewById(R.id.difficultyGroup);
         final Button startButton = (Button) findViewById(R.id.startButton);
+        final Button scoresButton = (Button) findViewById(R.id.highScoreButton);
 
         difficulty = 0;
         mode = GameMode.SinglePlayer;
@@ -98,5 +112,74 @@ public class SplashScreen extends AppCompatActivity {
                 }
             }
         });
+
+        scoresButton.setOnClickListener(new View.OnClickListener() {
+           public void onClick(View v) {
+               f = new frontend(difficulty, mode, getApplicationContext());
+               switch(mode){
+                   case SinglePlayer:
+                       switch(difficulty){
+                           case 0:
+                               hsdialog.setMessage("Single Player - Easy");
+                               break;
+                           case 1:
+                               hsdialog.setMessage("Single Player - Medium");
+                               break;
+                           case 2:
+                               hsdialog.setMessage("Single Player - Hard");
+                               break;
+                       }
+                       break;
+                   case BasicTwoPlayer:
+                       switch(difficulty){
+                           case 0:
+                               hsdialog.setMessage("Two Player Basic - Easy");
+                               break;
+                           case 1:
+                               hsdialog.setMessage("Two Player Basic - Medium");
+                               break;
+                           case 2:
+                               hsdialog.setMessage("Two Player Basic - Hard");
+                               break;
+                       }
+                       break;
+                   case CutThroatTwoPLayer:
+                       switch(difficulty){
+                           case 0:
+                               hsdialog.setMessage("Two Player Cutthroat - Easy");
+                               break;
+                           case 1:
+                               hsdialog.setMessage("Two Player Cutthroat - Medium");
+                               break;
+                           case 2:
+                               hsdialog.setMessage("Two Player Cutthroat - Hard");
+                               break;
+                       }
+                       break;
+               }
+               ShowHighScores();
+           }
+        });
+    }
+
+    public void CreateHighScoreDialog(){
+        hsdialog = new AlertDialog.Builder(this);
+        hsdialog.setTitle("High Scores");
+
+        hsdialog.setPositiveButton("OK", new DialogInterface.OnClickListener(){
+            @Override
+            public void onClick(DialogInterface hsdialog, int which){
+                hsdialog.dismiss();
+            }
+        });
+    }
+
+    public void ShowHighScores(){
+        List<String> list = f.get_high_scores();
+        ListView hsList = new ListView(this);
+        hsdialog.setView(hsList);
+        final ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, list);
+        hsList.setAdapter(adapter);
+        hsdialog.show();
     }
 }
