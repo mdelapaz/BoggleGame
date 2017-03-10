@@ -7,6 +7,7 @@ import java.util.Arrays;
  */
 
 public class BoggleMessage {
+    //type of message
     public int type;
 
     //if we're telling the client how to build the game
