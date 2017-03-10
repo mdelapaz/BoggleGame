@@ -136,7 +136,7 @@ public class frontend {
         }
         System.out.println("Clicked the submit button");
         if(last_click >= 2) { //more than 3 letters long
-            int result = boggleBoard.checkWordAndUpdateScore(get_candidate_word(), null);
+            int result = boggleBoard.checkWordAndUpdateScore(get_candidate_word());
             if(result == 1) { //success
                 System.out.println("Word submission successful");
                 clear_click();

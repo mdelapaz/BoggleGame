@@ -26,8 +26,7 @@ public class BoggleBoard {
     private Trie dictionary = new Trie();
     //validWordsOnBoard contains all valid words that are on boggle board
     public Set<String> validWordsOnBoard = new HashSet<String>();
-    //
-    private ArrayList<String> validWordsOnBoardCutThroat = new ArrayList<String>();
+
     private ArrayList<CutThroatWord> validWordsFoundCutThroat = new ArrayList<CutThroatWord>();
     //difficulty level of boggle board, 0 means easy, 1 means normal and 2 means difficult
     //A valid grid of dice must contain at least two valid words in level easy, five valid words in level normal, and seven words in level difficult
@@ -88,24 +87,10 @@ public class BoggleBoard {
 
         board = new char[boardLength][boardLength];
 
-        //create a boggle board with random characters and check to see if it has at least minValidWordsRequired valid words on boggle board
-        if(gameMode == GameMode.CutThroatTwoPLayer){
-
-            do{
-
-                generateBoardUsingStandardDice();
-                findValidWordsOnBoard();
-
-            }while(validWordsOnBoardCutThroat.size() <= minValidWordsRequired);
-        }
-        else{
-
-            do{
-                generateBoardUsingStandardDice();
-                findValidWordsOnBoard();
-            }while(validWordsOnBoard.size() <= minValidWordsRequired);
-        }
-
+        do{
+            generateBoardUsingStandardDice();
+            findValidWordsOnBoard();
+        }while(validWordsOnBoard.size() <= minValidWordsRequired);
 
         //if player on this device is the game initiator, push board and valid words to other device
         if(gameMode != GameMode.SinglePlayer){
@@ -213,14 +198,7 @@ public class BoggleBoard {
         //if word is valid / in dictionary, add it to validWordsOnBoard, else ignore
         if(word.length() >= 3 && dictionary.search(word.toLowerCase()))
         {
-            //with cutthroat mode, we need to consider the scenario of 2 same valid words being on board
-            // and thus they need to be stored in a list instead of storing them in a set
-            if(this.gameMode == GameMode.CutThroatTwoPLayer){
-                validWordsOnBoardCutThroat.add(word);
-            }
-            else{
-                validWordsOnBoard.add(word);
-            }
+            validWordsOnBoard.add(word);
         }
 
 
@@ -260,8 +238,45 @@ public class BoggleBoard {
     //returns 1 if the word submitted is a valid word and has never been submitted by user before
     //return 2 if word is a valid word but has been submitted by user before
     // score is updated accordingly
-    //if checkForClient is true, score is returned
-    public int checkWordAndUpdateScore(String word, int[] sequenceOfTiles, boolean checkForClient) throws InputMismatchException{
+    public int checkWordAndUpdateScore(String word) {
+
+        //if word is valid and is on board
+        if(validWordsOnBoard.contains(word.toUpperCase())){
+
+            //if word has never been submitted by user before, add word to validWordsFoundByUser and update score
+            if(!validWordsFoundByUser.contains(word.toUpperCase())){
+
+                int wordLength = word.length();
+                if(wordLength < 3)
+                    score +=0;
+                else if(wordLength == 3 || wordLength == 4)
+                    score += 1;
+                else if(wordLength == 5)
+                    score += 2;
+                else if(wordLength == 6)
+                    score += 3;
+                else if(wordLength == 7)
+                    score += 5;
+                else
+                    score += 10;
+
+                validWordsFoundByUser.add(word);
+                return 1;
+            } else{
+
+                return 2;
+            }
+        }
+        return 0;
+    }
+
+    // use this function to check for valid words when the game mode is cut throat
+    // if word is valid, the points that the word is worth is returned
+    // is the word is check for host (i.e. not client), score is updated for the host
+    //return 0 if word is a valid word but has been submitted by user before
+    //returns -1 if word is not a valid word i.e. not in game's dictionary
+    //returns -2 if game is not in CutThroatTwoPLayer mode
+    public int checkWordAndUpdateScoreCutThroat(String word, int[] sequenceOfTiles, boolean checkForClient)throws InputMismatchException {
 
         if(gameMode == GameMode.CutThroatTwoPLayer){
 
@@ -270,8 +285,11 @@ public class BoggleBoard {
                 throw new InputMismatchException();
             }
 
+            //represents how many points the word is worth
+            int wordScore = 0;
+
             //if word is valid and is on board
-            if(validWordsOnBoardCutThroat.contains(word.toUpperCase())){
+            if(validWordsOnBoard.contains(word.toUpperCase())){
 
                 CutThroatWord cutThroatWord = new CutThroatWord(sequenceOfTiles, word);
 
@@ -279,61 +297,35 @@ public class BoggleBoard {
                 if(!validWordsFoundCutThroat.contains(cutThroatWord)){
 
                     int wordLength = word.length();
-                    if(wordLength < 3)
-                        score +=0;
-                    else if(wordLength == 3 || wordLength == 4)
-                        score += 1;
+
+                    if(wordLength == 3 || wordLength == 4)
+                        wordScore = 1;
                     else if(wordLength == 5)
-                        score += 2;
+                        wordScore = 2;
                     else if(wordLength == 6)
-                        score += 3;
+                        wordScore = 3;
                     else if(wordLength == 7)
-                        score += 5;
+                        wordScore = 5;
                     else
-                        score += 10;
+                        wordScore = 10;
 
                     validWordsFoundCutThroat.add(cutThroatWord);
-                    validWordsOnBoardCutThroat.remove(word);
 
-                    return 1;
+                    if(!checkForClient){
+                        score += wordScore;
+                    }
+
+                    return wordScore;
                 } else{
 
-                    return 2;
+                    return 0;
                 }
             }
-            return 0;
+
+            return -1;
         }
 
-        else{
-            //if word is valid and is on board
-            if(validWordsOnBoard.contains(word.toUpperCase())){
-
-                //if word has never been submitted by user before, add word to validWordsFoundByUser and update score
-                if(!validWordsFoundByUser.contains(word.toUpperCase())){
-
-                    int wordLength = word.length();
-                    if(wordLength < 3)
-                        score +=0;
-                    else if(wordLength == 3 || wordLength == 4)
-                        score += 1;
-                    else if(wordLength == 5)
-                        score += 2;
-                    else if(wordLength == 6)
-                        score += 3;
-                    else if(wordLength == 7)
-                        score += 5;
-                    else
-                        score += 10;
-
-                    validWordsFoundByUser.add(word);
-                    return 1;
-                } else{
-
-                    return 2;
-                }
-            }
-            return 0;
-        }
+        return -2;
     }
 
     public int getScore() {
