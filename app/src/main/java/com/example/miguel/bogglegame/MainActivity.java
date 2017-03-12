@@ -174,8 +174,6 @@ public class MainActivity extends AppCompatActivity {
                     //btService.write(testmsg.getBytes());
                 }
             }
-
-
         }
 
         frontend = new frontend(words, difficulty, mode, getApplicationContext());
@@ -227,6 +225,7 @@ public class MainActivity extends AppCompatActivity {
                 switch (action & MotionEvent.ACTION_MASK) {
                     case MotionEvent.ACTION_DOWN: {
                         position = gridview.pointToPosition((int) event.getX(), (int) event.getY());
+                        if(position == -1) return true;
                         TextView child = (TextView) gridview.getChildAt(position);
                         if(frontend.tile_click(position) == true) {
                             if(frontend.tile_state[position] == true) {
