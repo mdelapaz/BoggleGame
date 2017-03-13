@@ -37,6 +37,7 @@ public class BoggleMessage {
                 }
                 break;
             case MessageType.SubmitWord:
+            case MessageType.AcceptWord:
                 word_submission = new int[input.length-1];
                 for(int i = 0;i<word_submission.length;i++){
                     word_submission[i] = (int)input[i+1];
@@ -57,18 +58,19 @@ public class BoggleMessage {
         difficulty = p_difficulty;
     }
     //construct message with word submission
-    BoggleMessage(int[] submit) {
-        type = MessageType.SubmitWord;
+    BoggleMessage(int ptype, int[] submit) {
+        type = ptype;
         word_submission = submit;
     }
 
     //turn this into a byte array to send across bluetooth
     public byte[] output() {
         byte[] retval;
+        byte typebyte = (byte)type;
         switch(type) {
             case MessageType.SupplyBoard:
                 retval = new byte[3+letters.length];
-                retval[0] = (byte)type;
+                retval[0] = typebyte;
                 if(mode == GameMode.BasicTwoPlayer) {
                     retval[1] = 0;
                 } else {
@@ -81,15 +83,16 @@ public class BoggleMessage {
                 }
                 break;
             case MessageType.SubmitWord:
+            case MessageType.AcceptWord:
                 retval = new byte[1+word_submission.length];
-                retval[0] = (byte)type;
+                retval[0] = typebyte;
                 for(int i=0;i<word_submission.length;i++) {
                     retval[i+1] = (byte)word_submission[i];
                 }
                 break;
             default: //no data with message
                 retval = new byte[1];
-                retval[0] = (byte)type;
+                retval[0] = typebyte;
                 break;
         }
         return retval;

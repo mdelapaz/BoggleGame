@@ -179,6 +179,36 @@ public class frontend {
         }
     }
 
+    public int[] submit_click_client() {
+        if(game_over) {
+            return null;
+        }
+        if(last_click >= 2) { //more than 3 letters long
+            int[] submit = new int[last_click];
+            for(int i = 0; i <= last_click; i++) {
+                submit[i] = current_submission[i];
+            }
+            clear_click();
+            return submit;
+        }
+        return null;
+    }
+
+    //called when host sends message to tell client they accepted a word
+    public boolean submit_click_client_accepted(int[] submission) {
+        String word = "";
+        for(int i = 0; i <= submission.length; i++) {
+            word += tile_letters[submission[i]];
+        }
+        //TODO replace this with whatever the backend is supposed to do as a client
+        int result = boggleBoard.checkWordAndUpdateScore(word);
+        if(result == 1) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     public boolean end_game() {
         game_over = true;
         if (boggleBoard.checkHighScore()) {

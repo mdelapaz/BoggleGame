@@ -56,6 +56,15 @@ public class MainActivity extends AppCompatActivity {
     private BoggleMessage boardFromHost;
     private boolean readyToPlay = false;
 
+    //gui objects declared here for refresh
+    GridView gridview;
+    TextView scoreview;
+    TextView currentWord;
+    TextView foundWords;
+
+    final ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
+            android.R.layout.simple_list_item_1, frontend.get_letters());
+
 
     public MainActivity() {
     }
@@ -201,14 +210,14 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        final GridView gridview = (GridView) findViewById(R.id.LetterGrid);
+        gridview = (GridView) findViewById(R.id.LetterGrid);
         final TextView timeview = (TextView) findViewById(R.id.TimeRemaining);
-        final TextView scoreview = (TextView) findViewById(R.id.CurrentScore);
+        scoreview = (TextView) findViewById(R.id.CurrentScore);
         final Button clearButton = (Button) findViewById(R.id.ClearButton);
         final Button submitButton = (Button) findViewById(R.id.SubmitButton);
         final Button resetButton = (Button) findViewById(R.id.ResetButton);
-        final TextView currentWord = (TextView) findViewById(R.id.CurrentWord);
-        final TextView foundWords = (TextView) findViewById(R.id.foundWords);
+        currentWord = (TextView) findViewById(R.id.CurrentWord);
+        foundWords = (TextView) findViewById(R.id.foundWords);
         final GridView wordList = (GridView) findViewById(R.id.WordList);
 
         final ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
@@ -228,7 +237,7 @@ public class MainActivity extends AppCompatActivity {
                     TextView child = (TextView) gridview.getChildAt(i);
                     child.setText(letters[i]);
                 }
-                refresh(gridview, currentWord, scoreview, foundWords);
+                refresh();
                 gameTimer = start_timer(timeview, wordList, foundWords, currentWord, submitButton, clearButton);
                 HideWordList(wordList, foundWords, currentWord, submitButton, clearButton);
                 System.out.println("Restarted the game");
@@ -278,19 +287,38 @@ public class MainActivity extends AppCompatActivity {
         clearButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 if(frontend.clear_click()) {
-                    refresh(gridview, currentWord, scoreview, foundWords);
+                    refresh();
                 }
             }
         });
 
         submitButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                if(frontend.submit_click()) {
-                    refresh(gridview, currentWord, scoreview, foundWords);
-                    Toast.makeText(getApplicationContext(), "Valid word submitted!",Toast.LENGTH_SHORT).show();
-                }
-                else{
-                    Toast.makeText(getApplicationContext(), "Word not valid!", Toast.LENGTH_SHORT).show();
+                if(mode == GameMode.SinglePlayer) {
+                    if (frontend.submit_click()) {
+                        refresh();
+                        Toast.makeText(getApplicationContext(), "Valid word submitted!", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(getApplicationContext(), "Word not valid!", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    if(is_host) {
+                        if (frontend.submit_click()) {
+                            refresh();
+                            Toast.makeText(getApplicationContext(), "Valid word submitted!", Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(getApplicationContext(), "Word not valid!", Toast.LENGTH_SHORT).show();
+                        }
+                        //TODO send client word to add to opponent list
+                    } else { //client
+                        int[] submission = frontend.submit_click_client();
+                        if(submission != null) {
+                            refresh();
+                            //send this to host to verify
+                            BoggleMessage submit_msg = new BoggleMessage(MessageType.SubmitWord, submission);
+                            btService.write(submit_msg.output());
+                        }
+                    }
                 }
             }
         });
@@ -337,7 +365,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //refreshes the views according to current game state
-    public void refresh(GridView gridview, TextView current_word, TextView current_score, TextView words_found) {
+    public void refresh() {
+        //if we haven't initialized these things dont try to do anything
+        if((gridview == null) || (scoreview == null) || (currentWord == null) || (foundWords == null)) {
+            return;
+        }
         for(int i = 0; i < gridview.getChildCount(); i++) {
             TextView child = (TextView) gridview.getChildAt(i);
             if(frontend.tile_state[i] == true) {
@@ -346,14 +378,14 @@ public class MainActivity extends AppCompatActivity {
                 child.setBackgroundColor(Color.parseColor("#FAFAFA"));
             }
         }
-        current_word.setText(frontend.get_candidate_word());
-        current_score.setText("Score: " + Integer.toString(frontend.boggleBoard.getScore()));
+        currentWord.setText(frontend.get_candidate_word());
+        scoreview.setText("Score: " + Integer.toString(frontend.boggleBoard.getScore()));
         String found_string = "";
         for(String word : frontend.boggleBoard.validWordsFoundByUser) {
             found_string += word;
             found_string += "  ";
         }
-        words_found.setText(found_string);
+        foundWords.setText(found_string);
     }
 
     public void CreateNameDialog(){
@@ -506,9 +538,25 @@ public class MainActivity extends AppCompatActivity {
         BoggleMessage message = new BoggleMessage(input);
         switch (message.type) {
             case MessageType.SupplyBoard:
-                    boardFromHost = message;
-                    requestingBoard = false;
+                boardFromHost = message;
+                requestingBoard = false;
                 break;
+            case MessageType.AcceptWord: //host accepted word
+                if(!is_host) { //client
+                    if (frontend.submit_click_client_accepted(message.word_submission)) {
+                        refresh();
+                        Toast.makeText(getApplicationContext(), "Valid word submitted!", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(getApplicationContext(), "Word not valid!", Toast.LENGTH_SHORT).show();
+                    }
+                }
+                break;
+            case MessageType.SubmitWord: //client submitted a word
+                if(is_host) {
+                    //TODO code to verify client word and then message back
+                }
+                break;
+
             //add more message types
         }
     }
