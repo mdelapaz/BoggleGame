@@ -53,6 +53,7 @@ public class MainActivity extends AppCompatActivity {
     private Handler mHandler;
     private String mConnectedDeviceName = null;
     private boolean requestingBoard = false;
+    private BoggleMessage boardFromHost;
     private boolean readyToPlay = false;
 
 
@@ -136,7 +137,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             };
             btService = new BluetoothService(getApplicationContext(),mHandler);
-            if(is_host) {
+            if(is_host) { //WE ARE THE HOST
                 btService.start();
                 //need to wait here until client connects
                 int lazytimeout = 1000000000;
@@ -147,12 +148,9 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(getApplicationContext(), "Could not connect to host", Toast.LENGTH_SHORT).show();
                     btService.stop();
                     finish();
-                } else {
-                    //test message
-                    //String testmsg = "This is from the host";
-                    //btService.write(testmsg.getBytes());
                 }
-            } else {
+            } else {  //WE ARE THE CLIENT
+                requestingBoard = true;
                 //look for paired devices
                 devices = btAdapter.getBondedDevices();
                 //try to connect
@@ -168,15 +166,37 @@ public class MainActivity extends AppCompatActivity {
                 //if no connection go back
                 if(btService.getState() != BluetoothService.STATE_CONNECTED) {
                     Toast.makeText(getApplicationContext(), "Could not connect to host", Toast.LENGTH_SHORT).show();
-                } else {
-                    //test message
-                    //String testmsg = "This is from the client";
-                    //btService.write(testmsg.getBytes());
+                } else { //try to get board
+                    while(requestingBoard && btService.getState() == BluetoothService.STATE_CONNECTED);
+                    if(requestingBoard) {
+                        Toast.makeText(getApplicationContext(), "Could not obtain game data from host", Toast.LENGTH_SHORT).show();
+                        finish();
+                    }
                 }
             }
         }
 
-        frontend = new frontend(words, difficulty, mode, getApplicationContext());
+        //board setup
+        if(mode == GameMode.SinglePlayer) {
+            frontend = new frontend(words, difficulty, mode, getApplicationContext());
+        } else {
+            if(is_host) {
+                frontend = new frontend(words, difficulty, mode, getApplicationContext());
+                //send board to client
+                boardFromHost = new BoggleMessage(frontend.get_letters(), mode, difficulty);
+                btService.write(boardFromHost.output());
+            } else { //client
+                //create frontend using boardFromHost;
+                if(boardFromHost != null) {
+                    mode = boardFromHost.mode;
+                    difficulty = boardFromHost.difficulty;
+                    frontend = new frontend(words, difficulty, mode, getApplicationContext());
+                } else {
+                    //shouldn't reach this state
+                    finish();
+                }
+            }
+        }
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -486,6 +506,8 @@ public class MainActivity extends AppCompatActivity {
         BoggleMessage message = new BoggleMessage(input);
         switch (message.type) {
             case MessageType.SupplyBoard:
+                    boardFromHost = message;
+                    requestingBoard = false;
                 break;
             //add more message types
         }

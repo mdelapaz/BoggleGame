@@ -58,6 +58,32 @@ public class frontend {
         //tile_letters = backend.exportBoard();
     }
 
+    //client frontend constructor
+    public frontend(String[] letters, String[] wordsInDictionary, int difficulty, GameMode mode, Context context){
+
+        game_over = false;
+        game_mode = mode;
+        difficulty_level = difficulty;
+        current_submission = new int[16];
+        last_click = -1;
+        tile_state = new boolean[16];
+        for(int i = 0; i < 16; i++) {
+            tile_state[i] = false;
+        }
+
+        //boggleBoard = new BoggleBoard(boggleBoardLength, wordsInDictionary, difficulty_level, context, mode);
+        //TODO construct multiplayer client backend using letters param as grid
+        char[][] board = new char[4][4];
+        for(int i = 0; i < 16; i++) {
+            board[i/4][i%4] = letters[i].charAt(0);
+        }
+        boggleBoard = new BoggleBoard(boggleBoardLength, context, board, difficulty, mode, wordsInDictionary);
+        tile_letters = boggleBoard.exportBoard();
+        //backend = new BoggleBoard(boggleBoardLength, wordsInDictionary, difficulty_level);
+        //backend = new BackendDummy(boggleBoardLength, wordsInDictionary, difficulty_level);
+        //tile_letters = backend.exportBoard();
+    }
+
     public frontend(int difficulty, GameMode mode, Context context){
         game_mode = mode;
         difficulty_level = difficulty;
