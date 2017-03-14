@@ -117,7 +117,7 @@ public class BoggleBoard {
             }
         }
 
-        // findValidWordsOnBoard();
+        findValidWordsOnBoard();
     }
 
     // NOTE: use this constructor when you want to access high scores without actually playing a game
