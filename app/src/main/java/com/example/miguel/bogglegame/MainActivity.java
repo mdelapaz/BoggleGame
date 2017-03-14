@@ -62,8 +62,7 @@ public class MainActivity extends AppCompatActivity {
     TextView currentWord;
     TextView foundWords;
 
-    final ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
-            android.R.layout.simple_list_item_1, frontend.get_letters());
+    private ArrayAdapter<String> adapter;
 
 
     public MainActivity() {
@@ -220,9 +219,6 @@ public class MainActivity extends AppCompatActivity {
         foundWords = (TextView) findViewById(R.id.foundWords);
         final GridView wordList = (GridView) findViewById(R.id.WordList);
 
-        final ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
-                android.R.layout.simple_list_item_1, frontend.get_letters());
-
         CreateHighScoreDialog();
         sManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         mAccelerometer = sManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
@@ -244,6 +240,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, frontend.get_letters());
         gridview.setAdapter(adapter);
 
         gridview.setOnTouchListener(new View.OnTouchListener() {
