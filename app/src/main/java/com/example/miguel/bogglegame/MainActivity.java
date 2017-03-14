@@ -381,7 +381,18 @@ public class MainActivity extends AppCompatActivity {
         AlertDialog.Builder dialog;
 
         dialog = new AlertDialog.Builder(this);
-        dialog.setMessage(String.format("Your Final Score: %d", frontend.boggleBoard.getScore()));
+        switch(mode){
+            case SinglePlayer:
+                dialog.setMessage(String.format("Your Final Score: %d", frontend.boggleBoard.getScore()));
+                break;
+            case BasicTwoPlayer:
+            case CutThroatTwoPLayer:
+                dialog.setMessage(String.format("Your Final Score: %d\nYour Opponent's Score: %d", frontend.boggleBoard.getScore(), frontend.boggleBoard.getClientScore()));
+                break;
+        }
+        if(mode == GameMode.SinglePlayer) {
+
+        }
         dialog.setPositiveButton("OK", new DialogInterface.OnClickListener(){
             @Override
             public void onClick(DialogInterface dialog, int which){
