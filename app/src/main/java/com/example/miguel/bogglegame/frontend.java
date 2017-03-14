@@ -193,7 +193,7 @@ public class frontend {
         }
         if(last_click >= 2) { //more than 3 letters long
             int[] submit = new int[last_click];
-            for(int i = 0; i <= last_click; i++) {
+            for(int i = 0; i < last_click; i++) {
                 submit[i] = current_submission[i];
             }
             clear_click();

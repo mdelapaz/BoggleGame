@@ -479,7 +479,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public CountDownTimer start_timer(final TextView timeview, final GridView word_list, final TextView found_words, final TextView current_word, final Button submit_button, final Button clear_button) {
-        return new CountDownTimer(18000, 1000) {
+        return new CountDownTimer(180000, 1000) {
 
             public void onTick(long millisUntilFinished) {
                 timeview.setText("Time Left: " + (millisUntilFinished / 1000) + " s");
@@ -500,8 +500,18 @@ public class MainActivity extends AppCompatActivity {
         submit_button.setVisibility(View.INVISIBLE);
         clear_button.setVisibility(View.INVISIBLE);
         List<String> list = new ArrayList<>(frontend.boggleBoard.validWordsOnBoard);
+        List<String> foundWords = new ArrayList<>(frontend.boggleBoard.validWordsFoundByUser);
+
         final ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, list);
         word_list.setAdapter(adapter);
+
+        for(int i = 0; i < word_list.getChildCount(); i++) {
+            TextView child = (TextView) gridview.getChildAt(i);
+            if(foundWords.contains(child.getText())) {
+                child.setTextColor(Color.parseColor("#00FF00"));
+            }
+        }
+
     }
 
     public void HideWordList(final GridView word_list, final TextView found_words, final TextView current_word, final Button submit_button, final Button clear_button){
