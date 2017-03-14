@@ -106,6 +106,14 @@ public class frontend {
         return word;
     }
 
+    public String tiles_to_word(int[] tiles) {
+        String word = "";
+        for(int i = 0; i < tiles.length; i++) {
+            word += tile_letters[tiles[i]];
+        }
+        return word;
+    }
+
     //check for valid click, if so update candidate word and submissionarray
     //returns true if activity needs to update the tile
     public boolean tile_click(int click_pos) {
