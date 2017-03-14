@@ -19,6 +19,7 @@ import android.os.Bundle;
 import android.text.InputType;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -491,7 +492,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public CountDownTimer start_timer(final TextView timeview, final GridView word_list, final TextView found_words, final TextView current_word, final Button submit_button, final Button clear_button) {
-        return new CountDownTimer(180000, 1000) {
+        return new CountDownTimer(18000, 1000) {
 
             public void onTick(long millisUntilFinished) {
                 timeview.setText("Time Left: " + (millisUntilFinished / 1000) + " s");
@@ -512,10 +513,24 @@ public class MainActivity extends AppCompatActivity {
         submit_button.setVisibility(View.INVISIBLE);
         clear_button.setVisibility(View.INVISIBLE);
         List<String> list = new ArrayList<>(frontend.boggleBoard.validWordsOnBoard);
-        List<String> foundWords = new ArrayList<>(frontend.boggleBoard.validWordsFoundByUser);
+        final List<String> foundWords = new ArrayList<>(frontend.boggleBoard.validWordsFoundByUser);
 
         final ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, list);
-        word_list.setAdapter(adapter);
+        word_list.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, list) {
+            @Override
+            public View getView(int position, View convertView, ViewGroup parent) {
+                View view = super.getView(position, convertView, parent);
+                TextView text = (TextView) view.findViewById(android.R.id.text1);
+                if(foundWords.contains(text.getText())){
+                    text.setTextColor(Color.parseColor("#00FF00"));
+                }
+                else{
+                    text.setTextColor(Color.parseColor("#000000"));
+                }
+
+                return view;
+            }
+        });
 
  /*       for(int i = 0; i < word_list.getCount(); i++) {
             TextView child = (TextView) word_list.getItemAtPosition(i);
