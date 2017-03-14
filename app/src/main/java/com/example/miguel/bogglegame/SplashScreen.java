@@ -104,6 +104,7 @@ public class SplashScreen extends AppCompatActivity {
         clientButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 if(mode == GameMode.BasicTwoPlayer || mode == GameMode.CutThroatTwoPLayer) {
+                    System.out.println("Client button clicked");
                     Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                     intent.putExtra("EXTRA_DIFFICULTY", difficulty);
                     intent.putExtra("EXTRA_MODE", mode);

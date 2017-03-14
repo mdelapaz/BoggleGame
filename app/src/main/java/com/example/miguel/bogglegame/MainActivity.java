@@ -55,6 +55,7 @@ public class MainActivity extends AppCompatActivity {
     private boolean requestingBoard = false;
     private BoggleMessage boardFromHost;
     private boolean readyToPlay = false;
+    private String []words;
 
     //gui objects declared here for refresh
     GridView gridview;
@@ -73,7 +74,6 @@ public class MainActivity extends AppCompatActivity {
 
         //read words from dictionary.txt
         String text = "";
-        final String []words;
         try {
             InputStream is = getAssets().open("dictionary.txt");
             int size = is.available();
@@ -89,8 +89,10 @@ public class MainActivity extends AppCompatActivity {
         mode = (GameMode) getIntent().getSerializableExtra("EXTRA_MODE");
         difficulty = getIntent().getIntExtra("EXTRA_DIFFICULTY", 0);
 
+        System.out.println("At least things are printing...");
         //if 2p, try to set up multiplayer connection
         if(mode != GameMode.SinglePlayer) {
+            System.out.println("Multiplayer game initiated");
             //are we hosting this game?
             is_host = getIntent().getBooleanExtra("EXTRA_IS_HOST", false);
             //is bluetooth enabled?
@@ -162,6 +164,7 @@ public class MainActivity extends AppCompatActivity {
                 //look for paired devices
                 devices = btAdapter.getBondedDevices();
                 //try to connect
+                System.out.println("Client trying to connect");
                 for(BluetoothDevice device:devices){
                     btService.connect(device);
                     //wait to see what happens
@@ -173,13 +176,8 @@ public class MainActivity extends AppCompatActivity {
                 }
                 //if no connection go back
                 if(btService.getState() != BluetoothService.STATE_CONNECTED) {
+                    System.out.println("Unable to connect");
                     Toast.makeText(getApplicationContext(), "Could not connect to host", Toast.LENGTH_SHORT).show();
-                } else { //try to get board
-                    while(requestingBoard && btService.getState() == BluetoothService.STATE_CONNECTED);
-                    if(requestingBoard) {
-                        Toast.makeText(getApplicationContext(), "Could not obtain game data from host", Toast.LENGTH_SHORT).show();
-                        finish();
-                    }
                 }
             }
         }
@@ -194,15 +192,8 @@ public class MainActivity extends AppCompatActivity {
                 boardFromHost = new BoggleMessage(frontend.get_letters(), mode, difficulty);
                 btService.write(boardFromHost.output());
             } else { //client
-                //create frontend using boardFromHost;
-                if(boardFromHost != null) {
-                    mode = boardFromHost.mode;
-                    difficulty = boardFromHost.difficulty;
-                    frontend = new frontend(words, difficulty, mode, getApplicationContext());
-                } else {
-                    //shouldn't reach this state
-                    finish();
-                }
+                //create dummy front end until we get response from host
+                frontend = new frontend(words, difficulty, mode, getApplicationContext());
             }
         }
 
@@ -537,6 +528,15 @@ public class MainActivity extends AppCompatActivity {
             case MessageType.SupplyBoard:
                 boardFromHost = message;
                 requestingBoard = false;
+                mode = boardFromHost.mode;
+                String[] letters = boardFromHost.letters;
+                difficulty = boardFromHost.difficulty;
+                frontend = new frontend(letters, words, difficulty, mode, getApplicationContext());
+                for(int i = 0; i < gridview.getChildCount(); i++) {
+                    TextView child = (TextView) gridview.getChildAt(i);
+                    child.setText(letters[i]);
+                }
+                refresh();
                 break;
             case MessageType.AcceptWord: //host accepted word
                 if(!is_host) { //client

@@ -24,6 +24,7 @@ public class BoggleMessage {
         type = (int)input[0];
         switch(type) {
             case MessageType.SupplyBoard:
+                byte[] letter = new byte[1];
                 if((int)input[1] == 0) {
                     mode = GameMode.BasicTwoPlayer;
                 } else {
@@ -31,9 +32,9 @@ public class BoggleMessage {
                 }
                 difficulty = (int)input[2];
                 letters = new String[16];
-                String s = new String(input);
-                for(int i=0;i<16;i++){
-                    letters[i] = s.substring(i+3,i+4);
+                for(int i=0; i < letters.length; i++){
+                    letter[0] = input[i+3];
+                    letters[i] = new String(letter);
                 }
                 break;
             case MessageType.SubmitWord:
@@ -69,7 +70,11 @@ public class BoggleMessage {
         byte typebyte = (byte)type;
         switch(type) {
             case MessageType.SupplyBoard:
-                retval = new byte[3+letters.length];
+                byte[] ltrbytes = new byte[letters.length];
+                for(int i = 0; i < letters.length; i++){
+                    ltrbytes[i] = letters[i].getBytes()[0];
+                }
+                retval = new byte[3+ltrbytes.length];
                 retval[0] = typebyte;
                 if(mode == GameMode.BasicTwoPlayer) {
                     retval[1] = 0;
@@ -77,9 +82,9 @@ public class BoggleMessage {
                     retval[1] = 1;
                 }
                 retval[2] = (byte)difficulty;
-                byte[] ltrbytes = Arrays.toString(letters).getBytes();
-                for(int i=3;i<retval.length;i++) {
-                    retval[i] = ltrbytes[i-3];
+
+                for(int i=0;i<ltrbytes.length;i++) {
+                    retval[i+3] = ltrbytes[i];
                 }
                 break;
             case MessageType.SubmitWord:
