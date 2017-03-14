@@ -563,7 +563,18 @@ public class MainActivity extends AppCompatActivity {
                 break;
             case MessageType.SubmitWord: //client submitted a word
                 if(is_host) {
-                    //TODO code to verify client word and then message back
+                    int result = frontend.boggleBoard.checkWordAndUpdateScoreCutThroat(frontend.tiles_to_word(message.word_submission), message.word_submission, true);
+                    BoggleMessage reply;
+                    if(result > 0) {
+                        reply = new BoggleMessage(MessageType.AcceptWord, message.word_submission);
+                        btService.write(reply.output());
+                    } else if(result == -1) {
+                        reply = new BoggleMessage(MessageType.RejectWordIllegal);
+                        btService.write(reply.output());
+                    } else {
+                        reply = new BoggleMessage(MessageType.RejectWorldAlreadyFound);
+                        btService.write(reply.output());
+                    }
                 }
                 break;
 
