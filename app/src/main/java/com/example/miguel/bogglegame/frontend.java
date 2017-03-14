@@ -24,8 +24,7 @@ public class frontend {
 
     //data members
     boolean game_over; //true if game has ended (timeout)
-    //*************************BackendDummy backend;
-    //BoggleBoard backend;  //real backend
+
     int current_submission[];
     int last_click;
     boolean tile_state[];
@@ -53,9 +52,6 @@ public class frontend {
 
         boggleBoard = new BoggleBoard(boggleBoardLength, wordsInDictionary, difficulty_level, context, mode);
         tile_letters = boggleBoard.exportBoard();
-        //backend = new BoggleBoard(boggleBoardLength, wordsInDictionary, difficulty_level);
-        //backend = new BackendDummy(boggleBoardLength, wordsInDictionary, difficulty_level);
-        //tile_letters = backend.exportBoard();
     }
 
     //client frontend constructor
@@ -79,9 +75,6 @@ public class frontend {
         }
         boggleBoard = new BoggleBoard(boggleBoardLength, context, board, difficulty, mode, wordsInDictionary);
         tile_letters = boggleBoard.exportBoard();
-        //backend = new BoggleBoard(boggleBoardLength, wordsInDictionary, difficulty_level);
-        //backend = new BackendDummy(boggleBoardLength, wordsInDictionary, difficulty_level);
-        //tile_letters = backend.exportBoard();
     }
 
     public frontend(int difficulty, GameMode mode, Context context){

@@ -531,14 +531,6 @@ public class MainActivity extends AppCompatActivity {
                 return view;
             }
         });
-
- /*       for(int i = 0; i < word_list.getCount(); i++) {
-            TextView child = (TextView) word_list.getItemAtPosition(i);
-            if(foundWords.contains(child.getText())) {
-                child.setTextColor(Color.parseColor("#00FF00"));
-            }
-        }
-*/
     }
 
     public void HideWordList(final GridView word_list, final TextView found_words, final TextView current_word, final Button submit_button, final Button clear_button){
