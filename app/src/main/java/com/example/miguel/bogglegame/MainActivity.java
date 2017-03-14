@@ -283,23 +283,21 @@ public class MainActivity extends AppCompatActivity {
 
         submitButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                if(mode == GameMode.SinglePlayer) {
+                if(mode == GameMode.SinglePlayer || mode == GameMode.BasicTwoPlayer) {
                     if (frontend.submit_click()) {
                         refresh();
                         Toast.makeText(getApplicationContext(), "Valid word submitted!", Toast.LENGTH_SHORT).show();
                     } else {
                         Toast.makeText(getApplicationContext(), "Word not valid!", Toast.LENGTH_SHORT).show();
                     }
-                } else {
+                } else {  // CutthroatTwoPlayer
                     if(is_host) {
                         int submissionLength = frontend.last_click+1;
                         int[] submission = frontend.current_submission;
                         if (frontend.submit_click()) {
-                            if(mode == GameMode.CutThroatTwoPLayer){
-                                if(submission != null) {
-                                    BoggleMessage submit_msg = new BoggleMessage(MessageType.SubmitWord, submission, submissionLength);
-                                    btService.write(submit_msg.output());
-                                }
+                            if(submission != null) {
+                                BoggleMessage submit_msg = new BoggleMessage(MessageType.SubmitWord, submission, submissionLength);
+                                btService.write(submit_msg.output());
                             }
                             refresh();
                             Toast.makeText(getApplicationContext(), "Valid word submitted!", Toast.LENGTH_SHORT).show();
@@ -308,9 +306,9 @@ public class MainActivity extends AppCompatActivity {
                         }
                         //TODO send client word to add to opponent list
                     } else { //client
-                        int submissionLength = frontend.last_click+1;
+                        int submissionLength = frontend.last_click + 1;
                         int[] submission = frontend.submit_click_client();
-                        if(submission != null) {
+                        if (submission != null) {
                             refresh();
                             //send this to host to verify
                             BoggleMessage submit_msg = new BoggleMessage(MessageType.SubmitWord, submission, submissionLength);
@@ -500,7 +498,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public CountDownTimer start_timer(final TextView timeview, final GridView word_list, final TextView found_words, final TextView current_word, final Button submit_button, final Button clear_button) {
-        return new CountDownTimer(180000, 1000) {
+        return new CountDownTimer(30000, 1000) {
 
             public void onTick(long millisUntilFinished) {
                 timeview.setText("Time Left: " + (millisUntilFinished / 1000) + " s");
@@ -522,6 +520,7 @@ public class MainActivity extends AppCompatActivity {
         clear_button.setVisibility(View.INVISIBLE);
         List<String> list = new ArrayList<>(frontend.boggleBoard.validWordsOnBoard);
         final List<String> foundWords = new ArrayList<>(frontend.boggleBoard.validWordsFoundByUser);
+        final List<String> opponentsWords = new ArrayList<>(frontend.boggleBoard.wordsFoundByOpponent);
 
         final ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, list);
         word_list.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, list) {
@@ -529,8 +528,14 @@ public class MainActivity extends AppCompatActivity {
             public View getView(int position, View convertView, ViewGroup parent) {
                 View view = super.getView(position, convertView, parent);
                 TextView text = (TextView) view.findViewById(android.R.id.text1);
-                if(foundWords.contains(text.getText())){
+                if(foundWords.contains(text.getText()) && opponentsWords.contains(text.getText())){
+                    text.setTextColor(Color.parseColor("#0000FF"));
+                }
+                else if(foundWords.contains(text.getText())){
                     text.setTextColor(Color.parseColor("#00FF00"));
+                }
+                else if(opponentsWords.contains(text.getText())){
+                    text.setTextColor(Color.parseColor("#FF0000"));
                 }
                 else{
                     text.setTextColor(Color.parseColor("#000000"));
@@ -599,13 +604,15 @@ public class MainActivity extends AppCompatActivity {
                 }
                 break;
             case MessageType.SubmitWord: //client submitted a word
+                String word = frontend.tiles_to_word(message.word_submission);
                 if(is_host) {
-                    int result = frontend.boggleBoard.checkWordAndUpdateScoreCutThroat(frontend.tiles_to_word(message.word_submission), message.word_submission, true);
+                    int result = frontend.boggleBoard.checkWordAndUpdateScoreCutThroat(word, message.word_submission, true);
                     BoggleMessage reply;
                     if(result > 0) {
                         reply = new BoggleMessage(MessageType.AcceptWord, message.word_submission, message.word_length);
                         btService.write(reply.output());
-                        Toast.makeText(getApplicationContext(), String.format("Opponent found: %s", frontend.tiles_to_word(message.word_submission)), Toast.LENGTH_SHORT).show();
+                        frontend.boggleBoard.addOpponentWord(word);
+                        Toast.makeText(getApplicationContext(), String.format("Opponent found: %s", word), Toast.LENGTH_SHORT).show();
                     } else if(result == -1) {
                         reply = new BoggleMessage(MessageType.RejectWordIllegal);
                         btService.write(reply.output());
@@ -615,7 +622,8 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
                 else { // Client
-                    Toast.makeText(getApplicationContext(), String.format("Opponent found: %s", frontend.tiles_to_word(message.word_submission)), Toast.LENGTH_SHORT).show();
+                    frontend.boggleBoard.addOpponentWord(word);
+                    Toast.makeText(getApplicationContext(), String.format("Opponent found: %s", word), Toast.LENGTH_SHORT).show();
                 }
                 break;
             case MessageType.RejectWordIllegal:
@@ -623,6 +631,9 @@ public class MainActivity extends AppCompatActivity {
                 break;
             case MessageType.RejectWorldAlreadyFound:
                 Toast.makeText(getApplicationContext(), "Word already found!", Toast.LENGTH_SHORT).show();
+                break;
+            case MessageType.SendScore:
+                frontend.boggleBoard.setClientScore(message.score);
                 break;
 
 

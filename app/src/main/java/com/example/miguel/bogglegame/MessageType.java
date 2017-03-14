@@ -12,4 +12,5 @@ public class MessageType {
     static final int RejectWordIllegal = 4; //host: send to client if client submits a non-word
     static final int RejectWorldAlreadyFound = 5; //host: send to client if client submits word already found
     static final int AcceptWord = 6; //host: send to client if client submits word successfully
+    static final int SendScore = 7; // both: to send score at end of game, when necessary
 }

@@ -41,6 +41,7 @@ public class BoggleBoard {
     private int clientScore;
     //validWordsFoundByUser contains all valid words on boggle board that are found by user
     public Set<String> validWordsFoundByUser = new HashSet<String>();
+    public Set<String> wordsFoundByOpponent = new HashSet<String>();
 
     private GameMode gameMode;
 
@@ -316,6 +317,7 @@ public class BoggleBoard {
 
                     if(!checkForClient){
                         score += wordScore;
+                        validWordsFoundByUser.add(word);
                     }else{
                         clientScore += wordScore;
                     }
@@ -498,5 +500,9 @@ public class BoggleBoard {
 
     public void setGameMode(GameMode gameMode) {
         this.gameMode = gameMode;
+    }
+
+    public void addOpponentWord(String word){
+        wordsFoundByOpponent.add(word);
     }
 }

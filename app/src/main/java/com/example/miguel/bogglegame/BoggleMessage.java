@@ -19,6 +19,8 @@ public class BoggleMessage {
     int[] word_submission;
     int word_length;
 
+    int score;
+
     //construct from byte array sent by other phone
     BoggleMessage(byte[] input) {
         //figure out contents of byte stream
@@ -46,6 +48,8 @@ public class BoggleMessage {
                     word_submission[i] = (int)input[i+2];
                 }
                 break;
+            case MessageType.SendScore:
+                score = (int)input[1];
         }
     }
 
@@ -65,6 +69,12 @@ public class BoggleMessage {
         type = ptype;
         word_length = length;
         word_submission = submit;
+    }
+
+    //construct message with score
+    BoggleMessage(int ptype, int score){
+        type = ptype;
+        score = score;
     }
 
     //turn this into a byte array to send across bluetooth
@@ -99,6 +109,10 @@ public class BoggleMessage {
                     retval[i+2] = (byte)word_submission[i];
                 }
                 break;
+            case MessageType.SendScore:
+                retval = new byte[2];
+                retval[0] = typebyte;
+                retval[1] = (byte)score;
             default: //no data with message
                 retval = new byte[1];
                 retval[0] = typebyte;
