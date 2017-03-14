@@ -299,11 +299,12 @@ public class MainActivity extends AppCompatActivity {
                         }
                         //TODO send client word to add to opponent list
                     } else { //client
+                        int submissionLength = frontend.last_click+1;
                         int[] submission = frontend.submit_click_client();
                         if(submission != null) {
                             refresh();
                             //send this to host to verify
-                            BoggleMessage submit_msg = new BoggleMessage(MessageType.SubmitWord, submission);
+                            BoggleMessage submit_msg = new BoggleMessage(MessageType.SubmitWord, submission, submissionLength);
                             btService.write(submit_msg.output());
                         }
                     }
@@ -505,13 +506,13 @@ public class MainActivity extends AppCompatActivity {
         final ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, list);
         word_list.setAdapter(adapter);
 
-        for(int i = 0; i < word_list.getChildCount(); i++) {
-            TextView child = (TextView) gridview.getChildAt(i);
+ /*       for(int i = 0; i < word_list.getCount(); i++) {
+            TextView child = (TextView) word_list.getItemAtPosition(i);
             if(foundWords.contains(child.getText())) {
                 child.setTextColor(Color.parseColor("#00FF00"));
             }
         }
-
+*/
     }
 
     public void HideWordList(final GridView word_list, final TextView found_words, final TextView current_word, final Button submit_button, final Button clear_button){
@@ -576,7 +577,7 @@ public class MainActivity extends AppCompatActivity {
                     int result = frontend.boggleBoard.checkWordAndUpdateScoreCutThroat(frontend.tiles_to_word(message.word_submission), message.word_submission, true);
                     BoggleMessage reply;
                     if(result > 0) {
-                        reply = new BoggleMessage(MessageType.AcceptWord, message.word_submission);
+                        reply = new BoggleMessage(MessageType.AcceptWord, message.word_submission, message.word_length);
                         btService.write(reply.output());
                     } else if(result == -1) {
                         reply = new BoggleMessage(MessageType.RejectWordIllegal);

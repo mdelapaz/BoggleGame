@@ -17,6 +17,7 @@ public class BoggleMessage {
 
     //if we're playing the game
     int[] word_submission;
+    int word_length;
 
     //construct from byte array sent by other phone
     BoggleMessage(byte[] input) {
@@ -39,9 +40,10 @@ public class BoggleMessage {
                 break;
             case MessageType.SubmitWord:
             case MessageType.AcceptWord:
-                word_submission = new int[input.length-1];
-                for(int i = 0;i<word_submission.length;i++){
-                    word_submission[i] = (int)input[i+1];
+                word_length = (int)input[1];
+                word_submission = new int[word_length];
+                for(int i = 0;i<word_length;i++){
+                    word_submission[i] = (int)input[i+2];
                 }
                 break;
         }
@@ -59,8 +61,9 @@ public class BoggleMessage {
         difficulty = p_difficulty;
     }
     //construct message with word submission
-    BoggleMessage(int ptype, int[] submit) {
+    BoggleMessage(int ptype, int[] submit, int length) {
         type = ptype;
+        word_length = length;
         word_submission = submit;
     }
 
@@ -89,10 +92,11 @@ public class BoggleMessage {
                 break;
             case MessageType.SubmitWord:
             case MessageType.AcceptWord:
-                retval = new byte[1+word_submission.length];
+                retval = new byte[2+word_length];
                 retval[0] = typebyte;
-                for(int i=0;i<word_submission.length;i++) {
-                    retval[i+1] = (byte)word_submission[i];
+                retval[1] = (byte)word_length;
+                for(int i=0;i<word_length;i++) {
+                    retval[i+2] = (byte)word_submission[i];
                 }
                 break;
             default: //no data with message
