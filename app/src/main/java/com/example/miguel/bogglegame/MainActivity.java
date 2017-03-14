@@ -292,7 +292,15 @@ public class MainActivity extends AppCompatActivity {
                     }
                 } else {
                     if(is_host) {
+                        int submissionLength = frontend.last_click+1;
+                        int[] submission = frontend.current_submission;
                         if (frontend.submit_click()) {
+                            if(mode == GameMode.CutThroatTwoPLayer){
+                                if(submission != null) {
+                                    BoggleMessage submit_msg = new BoggleMessage(MessageType.SubmitWord, submission, submissionLength);
+                                    btService.write(submit_msg.output());
+                                }
+                            }
                             refresh();
                             Toast.makeText(getApplicationContext(), "Valid word submitted!", Toast.LENGTH_SHORT).show();
                         } else {
@@ -492,7 +500,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public CountDownTimer start_timer(final TextView timeview, final GridView word_list, final TextView found_words, final TextView current_word, final Button submit_button, final Button clear_button) {
-        return new CountDownTimer(18000, 1000) {
+        return new CountDownTimer(180000, 1000) {
 
             public void onTick(long millisUntilFinished) {
                 timeview.setText("Time Left: " + (millisUntilFinished / 1000) + " s");
@@ -597,6 +605,7 @@ public class MainActivity extends AppCompatActivity {
                     if(result > 0) {
                         reply = new BoggleMessage(MessageType.AcceptWord, message.word_submission, message.word_length);
                         btService.write(reply.output());
+                        Toast.makeText(getApplicationContext(), String.format("Opponent found: %s", frontend.tiles_to_word(message.word_submission)), Toast.LENGTH_SHORT).show();
                     } else if(result == -1) {
                         reply = new BoggleMessage(MessageType.RejectWordIllegal);
                         btService.write(reply.output());
@@ -605,7 +614,17 @@ public class MainActivity extends AppCompatActivity {
                         btService.write(reply.output());
                     }
                 }
+                else { // Client
+                    Toast.makeText(getApplicationContext(), String.format("Opponent found: %s", frontend.tiles_to_word(message.word_submission)), Toast.LENGTH_SHORT).show();
+                }
                 break;
+            case MessageType.RejectWordIllegal:
+                Toast.makeText(getApplicationContext(), "Word not valid!", Toast.LENGTH_SHORT).show();
+                break;
+            case MessageType.RejectWorldAlreadyFound:
+                Toast.makeText(getApplicationContext(), "Word already found!", Toast.LENGTH_SHORT).show();
+                break;
+
 
             //add more message types
         }

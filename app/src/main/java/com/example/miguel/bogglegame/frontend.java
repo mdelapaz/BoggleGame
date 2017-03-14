@@ -157,23 +157,36 @@ public class frontend {
         return true;
     }
 
+    // Host click
     public boolean submit_click() {
         if(game_over) {
             return false;
         }
         System.out.println("Clicked the submit button");
         if(last_click >= 2) { //more than 3 letters long
-            int result = boggleBoard.checkWordAndUpdateScore(get_candidate_word());
-            if(result == 1) { //success
-                System.out.println("Word submission successful");
-                clear_click();
-                return true;
+            if(game_mode == GameMode.CutThroatTwoPLayer){
+                int result = boggleBoard.checkWordAndUpdateScoreCutThroat(get_candidate_word(), current_submission, false);
+                if (result > 0){ // success
+                    System.out.println("Word submission successful");
+                    clear_click();
+                    return true;
+                }
+                else{
+                    return false;
+                }
             }
-            else if(result == 2) { //word already submitted
-                System.out.println("Word submission failed, word already in list.");
-                return false;
-            } else {
-                return false;
+            else {
+                int result = boggleBoard.checkWordAndUpdateScore(get_candidate_word());
+                if (result == 1) { //success
+                    System.out.println("Word submission successful");
+                    clear_click();
+                    return true;
+                } else if (result == 2) { //word already submitted
+                    System.out.println("Word submission failed, word already in list.");
+                    return false;
+                } else {
+                    return false;
+                }
             }
         } else {
             return false;
