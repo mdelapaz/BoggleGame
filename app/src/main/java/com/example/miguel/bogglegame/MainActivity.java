@@ -376,6 +376,21 @@ public class MainActivity extends AppCompatActivity {
         foundWords.setText(found_string);
     }
 
+    private void ShowScoreDialog(final boolean highScore){
+        AlertDialog.Builder dialog;
+
+        dialog = new AlertDialog.Builder(this);
+        dialog.setMessage(String.format("Your Final Score: %d", frontend.boggleBoard.getScore()));
+        dialog.setPositiveButton("OK", new DialogInterface.OnClickListener(){
+            @Override
+            public void onClick(DialogInterface dialog, int which){
+                dialog.dismiss();
+                if(highScore) CreateNameDialog();
+            }
+        });
+        dialog.show();
+    }
+
     public void CreateNameDialog(){
         AlertDialog.Builder dialog;
         dialog = new AlertDialog.Builder(this);
@@ -464,7 +479,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public CountDownTimer start_timer(final TextView timeview, final GridView word_list, final TextView found_words, final TextView current_word, final Button submit_button, final Button clear_button) {
-        return new CountDownTimer(180000, 1000) {
+        return new CountDownTimer(18000, 1000) {
 
             public void onTick(long millisUntilFinished) {
                 timeview.setText("Time Left: " + (millisUntilFinished / 1000) + " s");
@@ -473,9 +488,7 @@ public class MainActivity extends AppCompatActivity {
             public void onFinish() {
                 timeview.setText("Game Over");
                 ShowWordList(word_list, found_words, current_word, submit_button, clear_button);
-                if(frontend.end_game()){
-                    CreateNameDialog();
-                }
+                ShowScoreDialog(frontend.end_game());
             }
         }.start();
     }
