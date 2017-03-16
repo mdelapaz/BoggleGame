@@ -72,9 +72,9 @@ public class BoggleMessage {
     }
 
     //construct message with score
-    BoggleMessage(int ptype, int score){
+    BoggleMessage(int ptype, int pscore){
         type = ptype;
-        score = score;
+        score = pscore;
     }
 
     //turn this into a byte array to send across bluetooth
@@ -113,6 +113,7 @@ public class BoggleMessage {
                 retval = new byte[2];
                 retval[0] = typebyte;
                 retval[1] = (byte)score;
+                break;
             default: //no data with message
                 retval = new byte[1];
                 retval[0] = typebyte;

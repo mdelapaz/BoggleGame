@@ -507,7 +507,13 @@ public class MainActivity extends AppCompatActivity {
             public void onFinish() {
                 timeview.setText("Game Over");
                 ShowWordList(word_list, found_words, current_word, submit_button, clear_button);
-                ShowScoreDialog(frontend.end_game());
+                if(mode == GameMode.SinglePlayer){
+                    ShowScoreDialog(frontend.end_game());
+                }
+                else{
+                    BoggleMessage score_msg = new BoggleMessage(MessageType.SendScore, frontend.boggleBoard.getScore());
+                    btService.write(score_msg.output());
+                }
             }
         }.start();
     }
@@ -634,6 +640,7 @@ public class MainActivity extends AppCompatActivity {
                 break;
             case MessageType.SendScore:
                 frontend.boggleBoard.setClientScore(message.score);
+                ShowScoreDialog(frontend.end_game());
                 break;
 
 
