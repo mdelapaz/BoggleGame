@@ -236,7 +236,7 @@ public class MainActivity extends AppCompatActivity {
 
         resetButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                if(is_multi_round) {
+                if(is_multi_round && !frontend.game_over) {
                     //can't stop until you get 5 words
                     if(frontend.boggleBoard.validWordsFoundByUser.size() < 5) {
                         return;
@@ -439,6 +439,7 @@ public class MainActivity extends AppCompatActivity {
 
             public void onFinish() {
                 timeview.setText("Game Over");
+                resetButton.setText("Menu");
                 ShowWordList();
                 if(mode == GameMode.SinglePlayer){
                     ShowScoreDialog(frontend.end_game());

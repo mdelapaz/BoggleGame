@@ -435,7 +435,7 @@ public class BoggleBoard {
         //Any other case, we have to start comparing
         for(User user : highScoreList) {
             //We found a place to put their score!
-            if(score > user.score) {
+            if(getScore() > user.score) {
                 return true;
             }
         }
@@ -444,7 +444,7 @@ public class BoggleBoard {
 
     //Function to be called from front end
     public boolean highScore(String name) {
-        return highScore(this.score, name);
+        return highScore(getScore(), name);
     }
 
     //Compare score to high score list, and see if they belong on there
