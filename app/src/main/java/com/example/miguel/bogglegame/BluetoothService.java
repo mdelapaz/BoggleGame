@@ -53,26 +53,13 @@ public class BluetoothService {
     /**
      * Constructor. Prepares a new BluetoothChat session.
      *
-     * @param context The UI Activity Context
      * @param handler A Handler to send messages back to the UI Activity
      */
-    public BluetoothService(Context context, Handler handler) {
+    public BluetoothService(Handler handler) {
         mAdapter = BluetoothAdapter.getDefaultAdapter();
         mState = STATE_NONE;
         mNewState = mState;
         mHandler = handler;
-    }
-
-    /**
-     * Update UI title according to the current state of the chat connection
-     */
-    private synchronized void updateUserInterfaceTitle() {
-        mState = getState();
-        Log.d(TAG, "updateUserInterfaceTitle() " + mNewState + " -> " + mState);
-        mNewState = mState;
-
-        // Give the new state to the Handler so the UI Activity can update
-        mHandler.obtainMessage(MESSAGE_STATE_CHANGE, mNewState, -1).sendToTarget();
     }
 
     /**
@@ -106,8 +93,6 @@ public class BluetoothService {
             mAcceptThread = new AcceptThread(true);
             mAcceptThread.start();
         }
-        // Update UI title
-        updateUserInterfaceTitle();
     }
 
     /**
@@ -135,8 +120,6 @@ public class BluetoothService {
         // Start the thread to connect with the given device
         mConnectThread = new ConnectThread(device);
         mConnectThread.start();
-        // Update UI title
-        updateUserInterfaceTitle();
     }
 
     /**
@@ -177,8 +160,6 @@ public class BluetoothService {
         bundle.putString(DEVICE_NAME, device.getName());
         msg.setData(bundle);
         mHandler.sendMessage(msg);
-        // Update UI title
-        updateUserInterfaceTitle();
     }
 
     /**
@@ -202,8 +183,6 @@ public class BluetoothService {
             mAcceptThread = null;
         }
         mState = STATE_NONE;
-        // Update UI title
-        updateUserInterfaceTitle();
     }
 
     /**
@@ -236,8 +215,6 @@ public class BluetoothService {
         mHandler.sendMessage(msg);
 
         mState = STATE_NONE;
-        // Update UI title
-        updateUserInterfaceTitle();
 
         // Start the service over to restart listening mode
         BluetoothService.this.start();
@@ -255,8 +232,6 @@ public class BluetoothService {
         mHandler.sendMessage(msg);
 
         mState = STATE_NONE;
-        // Update UI title
-        updateUserInterfaceTitle();
 
         // Start the service over to restart listening mode
         BluetoothService.this.start();
