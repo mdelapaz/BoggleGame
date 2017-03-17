@@ -41,8 +41,11 @@ public class MainActivity extends AppCompatActivity {
     private ShakeListener mShakeListener;
     private int difficulty;
     private GameMode mode;
+    private boolean is_multi_round;
     private int currPosition = -1;
     CountDownTimer gameTimer = null;
+    long timeLeft = -1;
+    static final long maxTime = 180000;
 
     //multiplayer things
     private boolean is_host;
@@ -93,6 +96,9 @@ public class MainActivity extends AppCompatActivity {
 
         mode = (GameMode) getIntent().getSerializableExtra("EXTRA_MODE");
         difficulty = getIntent().getIntExtra("EXTRA_DIFFICULTY", 0);
+        is_multi_round = getIntent().getBooleanExtra("EXTRA_MULTIROUND", false);
+
+
 
         System.out.println("At least things are printing...");
         //if 2p, try to set up multiplayer connection
@@ -125,11 +131,16 @@ public class MainActivity extends AppCompatActivity {
                 String[] letters = frontend.get_letters();
                 redrawBoard(letters);
                 refresh();
-                gameTimer = start_timer();
+                gameTimer = start_timer(maxTime);
                 HideWordList();
                 System.out.println("Restarted the game");
             }
         });
+
+        //if multiround use the menu button as an end round button
+        if(is_multi_round) {
+            resetButton.setText("End Round");
+        }
 
         adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, frontend.get_letters());
         gridview.setAdapter(adapter);
@@ -225,7 +236,28 @@ public class MainActivity extends AppCompatActivity {
 
         resetButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                finish();
+                if(is_multi_round) {
+                    //can't stop until you get 5 words
+                    if(frontend.boggleBoard.validWordsFoundByUser.size() < 5) {
+                        return;
+                    }
+                    //get score
+                    int prevRoundScore = frontend.boggleBoard.getRoundScore();
+                    //total score
+                    int totalScore = frontend.boggleBoard.getScore();
+                    //get time from timer + score
+                    long savedTime = timeLeft + (prevRoundScore*1000);
+
+                    //just doing this single player
+                    if(mode == GameMode.SinglePlayer) {
+                        frontend = new frontend(words, difficulty, mode, getApplicationContext());
+                        frontend.boggleBoard.add_prev_rounds_score(totalScore);
+                        redrawBoard(frontend.get_letters());
+                        startGame(savedTime);
+                    }
+                } else { //in single round go back to splash
+                    finish();
+                }
             }
         });
         HideWordList();
@@ -397,11 +429,12 @@ public class MainActivity extends AppCompatActivity {
         hsdialog.show();
     }
 
-    public CountDownTimer start_timer() {
-        return new CountDownTimer(30000, 1000) {
+    public CountDownTimer start_timer(long startTime) {
+        return new CountDownTimer(startTime, 1000) {
 
             public void onTick(long millisUntilFinished) {
                 timeview.setText("Time Left: " + (millisUntilFinished / 1000) + " s");
+                timeLeft = millisUntilFinished;
             }
 
             public void onFinish() {
@@ -482,8 +515,16 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void startGame(){
-        gameTimer = start_timer();
+    //new round
+    private void startGame(long startTime){
+        gameTimer.cancel();
+        gameTimer = start_timer(startTime);
+        refresh();
+    }
+
+    //new game
+    private void startGame() {
+        gameTimer = start_timer(maxTime);
         refresh();
     }
 

@@ -101,6 +101,33 @@
             android:text="Cutthroat Mode" />
     </RadioGroup>
 
+    <RadioGroup
+        android:id="@+id/multiRoundGroup"
+        android:layout_width="368dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:checkedButton="@+id/singleRoundButton"
+        android:gravity="center_horizontal"
+        android:orientation="horizontal"
+        app:layout_constraintTop_toBottomOf="@+id/modeGroup"
+        android:layout_marginLeft="8dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        android:layout_marginRight="8dp"
+        app:layout_constraintRight_toRightOf="parent">
+
+        <RadioButton
+            android:id="@+id/singleRoundButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Single Round" />
+
+        <RadioButton
+            android:id="@+id/multiRoundButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Multiple Rounds" />
+    </RadioGroup>
+
     <Button
         android:id="@+id/startButton"
         android:layout_width="wrap_content"

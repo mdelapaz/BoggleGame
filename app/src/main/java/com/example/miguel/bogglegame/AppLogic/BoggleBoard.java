@@ -38,6 +38,8 @@ public class BoggleBoard {
     //The score of each valid word is counted based on its length, 1 point for 3 or 4 letter words, 2 points for 5 letter words, 3
     //points for 6 letter words, 5 points for 7 letter words, and 10 points for words of 8 or more letters.
     private int score;
+    private int prev_rounds_score;
+
     private int clientScore;
     //validWordsFoundByUser contains all valid words on boggle board that are found by user
     public Set<String> validWordsFoundByUser = new HashSet<String>();
@@ -55,6 +57,7 @@ public class BoggleBoard {
     public BoggleBoard(final int boardLength, final String[] wordsInDictionary, int difficultyLevel, Context c, GameMode gameMode) {
 
         score = 0;
+        prev_rounds_score = 0;
         clientScore = 0;
         this.context = c;
         this.boardLength = boardLength;
@@ -105,6 +108,7 @@ public class BoggleBoard {
     //NOTE : use this constructor for MultiPlayer Mode where the player is NOT the game initiator
     public BoggleBoard(int boardLength, Context context, char[][] board, int difficultyLevel, GameMode gameMode, final String[] wordsInDictionary) {
         score = 0;
+        prev_rounds_score = 0;
         clientScore = 0;
         this.boardLength = boardLength;
         this.context = context;
@@ -336,8 +340,19 @@ public class BoggleBoard {
         return -2;
     }
 
+    //total score
     public int getScore() {
+        return score + prev_rounds_score;
+    }
+
+    //score for just this round
+    public int getRoundScore() {
         return score;
+    }
+
+    //for subsequent rounds we want to add the prev round's score
+    public void add_prev_rounds_score(int prevScore) {
+        prev_rounds_score += prevScore;
     }
 
     /**Return valid words not found by user*/
