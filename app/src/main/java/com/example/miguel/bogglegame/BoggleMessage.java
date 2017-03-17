@@ -13,6 +13,7 @@ public class BoggleMessage {
     //if we're telling the client how to build the game
     String[] letters;
     GameMode mode;
+    boolean is_multiround;
     int difficulty;
 
     //if we're playing the game
@@ -35,9 +36,14 @@ public class BoggleMessage {
                     mode = GameMode.CutThroatTwoPLayer;
                 }
                 difficulty = (int)input[2];
+                if((int)input[3] == 0) {
+                    is_multiround = false;
+                } else {
+                    is_multiround = true;
+                }
                 letters = new String[16];
                 for(int i=0; i < letters.length; i++){
-                    letter[0] = input[i+3];
+                    letter[0] = input[i+4];
                     letters[i] = new String(letter);
                 }
                 break;
@@ -67,11 +73,12 @@ public class BoggleMessage {
         type = p_type;
     }
     //construct message with board & game mode
-    BoggleMessage(String[] p_letters, GameMode p_mode, int p_difficulty) {
+    BoggleMessage(String[] p_letters, GameMode p_mode, int p_difficulty, boolean is_multi) {
         type = MessageType.SupplyBoard;
         letters = p_letters;
         mode = p_mode;
         difficulty = p_difficulty;
+        is_multiround = is_multi;
     }
     //construct message with word submission
     BoggleMessage(int ptype, int[] submit, int length) {
@@ -102,7 +109,7 @@ public class BoggleMessage {
                 for(int i = 0; i < letters.length; i++){
                     ltrbytes[i] = letters[i].getBytes()[0];
                 }
-                retval = new byte[3+ltrbytes.length];
+                retval = new byte[4+ltrbytes.length];
                 retval[0] = typebyte;
                 if(mode == GameMode.BasicTwoPlayer) {
                     retval[1] = 0;
@@ -110,9 +117,14 @@ public class BoggleMessage {
                     retval[1] = 1;
                 }
                 retval[2] = (byte)difficulty;
+                if(is_multiround) {
+                    retval[3] = 1;
+                } else {
+                    retval[3] = 0;
+                }
 
                 for(int i=0;i<ltrbytes.length;i++) {
-                    retval[i+3] = ltrbytes[i];
+                    retval[i+4] = ltrbytes[i];
                 }
                 break;
             case MessageType.SubmitWord:

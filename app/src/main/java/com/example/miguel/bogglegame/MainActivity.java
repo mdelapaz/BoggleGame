@@ -661,7 +661,9 @@ public class MainActivity extends AppCompatActivity {
                 mode = boardFromHost.mode;
                 String[] letters = boardFromHost.letters;
                 difficulty = boardFromHost.difficulty;
+                is_multi_round = boardFromHost.is_multiround;
                 frontend = new frontend(letters, words, difficulty, mode, getApplicationContext());
+                resetButton.setText("End Round");
                 redrawBoard(letters);
                 startGame();
                 break;
@@ -715,7 +717,7 @@ public class MainActivity extends AppCompatActivity {
                 break;
             case MessageType.ReadyToStart: // Host receives this from client
                 frontend = new frontend(words, difficulty, mode, getApplicationContext());
-                boardFromHost = new BoggleMessage(frontend.get_letters(), mode, difficulty);
+                boardFromHost = new BoggleMessage(frontend.get_letters(), mode, difficulty, is_multi_round);
                 btService.write(boardFromHost.output());
                 redrawBoard(frontend.get_letters());
                 startGame();
