@@ -42,6 +42,7 @@ public class BoggleBoard {
     //validWordsFoundByUser contains all valid words on boggle board that are found by user
     public Set<String> validWordsFoundByUser = new HashSet<String>();
     public Set<String> wordsFoundByOpponent = new HashSet<String>();
+    public Set<String> validWordsFoundByHost = new HashSet<String>();
 
     private GameMode gameMode;
 
@@ -296,6 +297,10 @@ public class BoggleBoard {
             //if word is valid and is on board
             if(validWordsOnBoard.contains(word.toUpperCase())){
 
+                if(checkForClient == false && validWordsFoundByHost.contains(word)){
+                    return 0;
+                }
+
                 CutThroatWord cutThroatWord = new CutThroatWord(sequenceOfTiles, word);
 
                 //if word has never been submitted by user before, add word to validWordsFoundCutThroat and update score
@@ -316,9 +321,12 @@ public class BoggleBoard {
 
                     validWordsFoundCutThroat.add(cutThroatWord);
 
+                    //if checking for host
                     if(!checkForClient){
+
                         score += wordScore;
                         validWordsFoundByUser.add(word);
+                        validWordsFoundByHost.add(word);
                     }else{
                         clientScore += wordScore;
                     }
