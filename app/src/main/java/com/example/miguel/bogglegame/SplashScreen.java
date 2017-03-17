@@ -24,6 +24,7 @@ import java.util.List;
 public class SplashScreen extends AppCompatActivity {
     private GameMode mode;
     private int difficulty;
+    private boolean is_multi_round;
     private AlertDialog.Builder hsdialog;
     private frontend f;
 
@@ -41,12 +42,15 @@ public class SplashScreen extends AppCompatActivity {
         final RadioButton basicButton = (RadioButton) findViewById(R.id.basicButton);
         final RadioButton cutthroatButton = (RadioButton) findViewById(R.id.cutthroatButton);
         final RadioGroup modeGroup = (RadioGroup) findViewById(R.id.modeGroup);
+        final RadioButton singleRoundButton = (RadioButton) findViewById(R.id.singleRoundButton);
+        final RadioButton multiRoundButton = (RadioButton) findViewById(R.id.multiRoundButton);
         final Button clientButton = (Button) findViewById(R.id.clientButton);
         final Button startButton = (Button) findViewById(R.id.startButton);
         final Button scoresButton = (Button) findViewById(R.id.highScoreButton);
 
         difficulty = 0;
         mode = GameMode.SinglePlayer;
+        is_multi_round = false;
 
         easyButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -75,6 +79,18 @@ public class SplashScreen extends AppCompatActivity {
         cutthroatButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 mode = GameMode.CutThroatTwoPLayer;
+            }
+        });
+
+        singleRoundButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                is_multi_round = false;
+            }
+        });
+
+        multiRoundButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                is_multi_round = true;
             }
         });
 
@@ -120,6 +136,7 @@ public class SplashScreen extends AppCompatActivity {
                     Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                     intent.putExtra("EXTRA_DIFFICULTY", difficulty);
                     intent.putExtra("EXTRA_MODE", mode);
+                    intent.putExtra("EXTRA_MULTIROUND", is_multi_round);
                     if(mode == GameMode.BasicTwoPlayer || mode == GameMode.CutThroatTwoPLayer) {
                         intent.putExtra("EXTRA_IS_HOST",true);
                     }
