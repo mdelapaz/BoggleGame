@@ -57,6 +57,12 @@ public class MainActivity extends AppCompatActivity {
     private BoggleMessage boardFromHost;
     private String []words;
 
+    private boolean waiting = false;
+    private boolean opponentDone = false;
+    private long savedTime;
+    private int savedTotalScore;
+
+
     // gui objects declared here
     private GridView gridview;
     private TextView scoreview;
@@ -148,6 +154,9 @@ public class MainActivity extends AppCompatActivity {
         gridview.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
+                if(waiting) {
+                    return true;
+                }
                 int currX, currY, position;
                 final int action = event.getAction();
                 switch (action & MotionEvent.ACTION_MASK) {
@@ -185,6 +194,9 @@ public class MainActivity extends AppCompatActivity {
 
         clearButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
+                if(waiting) {
+                    return;
+                }
                 if(frontend.clear_click()) {
                     refresh();
                 }
@@ -193,6 +205,9 @@ public class MainActivity extends AppCompatActivity {
 
         submitButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
+                if(waiting) {
+                    return;
+                }
                 if(mode == GameMode.SinglePlayer || mode == GameMode.BasicTwoPlayer) {
                     int submissionLength = frontend.last_click+1;
                     int[] submission = frontend.current_submission;
@@ -236,24 +251,27 @@ public class MainActivity extends AppCompatActivity {
 
         resetButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
+                if(waiting) {
+                    return;
+                }
                 if(is_multi_round && !frontend.game_over) {
                     //can't stop until you get 5 words
                     if(frontend.boggleBoard.validWordsFoundByUser.size() < 5) {
                         return;
                     }
-                    //get score
-                    int prevRoundScore = frontend.boggleBoard.getRoundScore();
-                    //total score
-                    int totalScore = frontend.boggleBoard.getScore();
-                    //get time from timer + score
-                    long savedTime = timeLeft + (prevRoundScore*1000);
+                    savedTime = timeLeft + (frontend.boggleBoard.getRoundScore()*1000);
+                    gameTimer.cancel();
+                    savedTotalScore = frontend.boggleBoard.getScore();
 
-                    //just doing this single player
-                    if(mode == GameMode.SinglePlayer) {
-                        frontend = new frontend(words, difficulty, mode, getApplicationContext());
-                        frontend.boggleBoard.add_prev_rounds_score(totalScore);
-                        redrawBoard(frontend.get_letters());
-                        startGame(savedTime);
+                    if(opponentDone || (mode == GameMode.SinglePlayer)) {
+                        startNewRound();
+                    } else {
+                        waiting = true; //freeze the buttons until the other guy finishes
+                        if(is_host) { //if host make new board and sent it to client
+                            frontend = new frontend(words, difficulty, mode, getApplicationContext());
+                            boardFromHost = new BoggleMessage(MessageType.HostRoundDone, frontend.get_letters());
+                            btService.write(boardFromHost.output());
+                        }
                     }
                 } else { //in single round go back to splash
                     finish();
@@ -262,6 +280,30 @@ public class MainActivity extends AppCompatActivity {
         });
         HideWordList();
         if(mode == GameMode.SinglePlayer) startGame();
+    }
+
+    private void startNewRound() {
+
+        if(mode == GameMode.SinglePlayer) { //single player
+            frontend = new frontend(words, difficulty, mode, getApplicationContext());
+            frontend.boggleBoard.add_prev_rounds_score(savedTotalScore);
+            redrawBoard(frontend.get_letters());
+            startGame(savedTime);
+        } else { //multiplayer
+            if(is_host) {  //make a new board and send it to client
+                frontend.boggleBoard.add_prev_rounds_score(savedTotalScore);
+                redrawBoard(frontend.get_letters());
+                startGame(savedTime);
+            } else { //client should have new board
+                String[] letters = boardFromHost.letters;
+                frontend = new frontend(letters, words, difficulty, mode, getApplicationContext());
+                frontend.boggleBoard.add_prev_rounds_score(savedTotalScore);
+                redrawBoard(letters);
+                startGame(savedTime);
+            }
+        }
+        waiting = false;
+        opponentDone = false;
     }
 
     private void processDragPoints(int x, int y){
@@ -518,7 +560,6 @@ public class MainActivity extends AppCompatActivity {
 
     //new round
     private void startGame(long startTime){
-        gameTimer.cancel();
         gameTimer = start_timer(startTime);
         refresh();
     }
@@ -678,6 +719,22 @@ public class MainActivity extends AppCompatActivity {
                 btService.write(boardFromHost.output());
                 redrawBoard(frontend.get_letters());
                 startGame();
+                break;
+            case MessageType.HostRoundDone: //client recieves this when host ends his round
+                //save board
+                boardFromHost = message;
+                if(waiting) { //client is finished an waiting for host board
+                    startNewRound();
+                } else {
+                    opponentDone = true;
+                }
+                break;
+            case MessageType.ClientRoundDone: //host recieves this when client ends his round
+                if(waiting) {
+                    startNewRound();
+                } else {
+                    opponentDone = true;
+                }
                 break;
 
 

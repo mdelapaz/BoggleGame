@@ -25,9 +25,10 @@ public class BoggleMessage {
     BoggleMessage(byte[] input) {
         //figure out contents of byte stream
         type = (int)input[0];
+        byte[] letter;
         switch(type) {
             case MessageType.SupplyBoard:
-                byte[] letter = new byte[1];
+                letter = new byte[1];
                 if((int)input[1] == 0) {
                     mode = GameMode.BasicTwoPlayer;
                 } else {
@@ -50,6 +51,14 @@ public class BoggleMessage {
                 break;
             case MessageType.SendScore:
                 score = (int)input[1];
+                break;
+            case MessageType.HostRoundDone:
+                letter = new byte[1];
+                for(int i = 0; i < letters.length; i++) {
+                    letter[0] = input[i+1];
+                    letters[i] = new String(letter);
+                }
+                break;
         }
     }
 
@@ -75,6 +84,12 @@ public class BoggleMessage {
     BoggleMessage(int ptype, int pscore){
         type = ptype;
         score = pscore;
+    }
+
+    //construct host is done with round message
+    BoggleMessage(int ptype, String[] p_letters) {
+        type = ptype;
+        letters = p_letters;
     }
 
     //turn this into a byte array to send across bluetooth
@@ -113,6 +128,17 @@ public class BoggleMessage {
                 retval = new byte[2];
                 retval[0] = typebyte;
                 retval[1] = (byte)score;
+                break;
+            case MessageType.HostRoundDone:
+                byte[] bytes = new byte[letters.length];
+                for(int i = 0; i < letters.length; i++){
+                    bytes[i] = letters[i].getBytes()[0];
+                }
+                retval = new byte[1+bytes.length];
+                retval[0] = typebyte;
+                for(int i = 0; i < bytes.length; i++) {
+                    retval[i+1] = bytes[i];
+                }
                 break;
             default: //no data with message
                 retval = new byte[1];

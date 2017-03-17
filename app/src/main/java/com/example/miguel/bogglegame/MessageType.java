@@ -13,4 +13,6 @@ public class MessageType {
     static final int RejectWorldAlreadyFound = 5; //host: send to client if client submits word already found
     static final int AcceptWord = 6; //host: send to client if client submits word successfully
     static final int SendScore = 7; // both: to send score at end of game, when necessary
+    static final int HostRoundDone = 8; //host: finished a round, has a new board ready for client
+    static final int ClientRoundDone = 9; //client: finished a round
 }

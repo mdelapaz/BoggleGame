@@ -41,6 +41,7 @@ public class BoggleBoard {
     private int prev_rounds_score;
 
     private int clientScore;
+    private int client_prev_rounds_score;
     //validWordsFoundByUser contains all valid words on boggle board that are found by user
     public Set<String> validWordsFoundByUser = new HashSet<String>();
     public Set<String> wordsFoundByOpponent = new HashSet<String>();
@@ -60,6 +61,7 @@ public class BoggleBoard {
         score = 0;
         prev_rounds_score = 0;
         clientScore = 0;
+        client_prev_rounds_score = 0;
         this.context = c;
         this.boardLength = boardLength;
         this.difficultyLevel = difficultyLevel;
@@ -111,6 +113,7 @@ public class BoggleBoard {
         score = 0;
         prev_rounds_score = 0;
         clientScore = 0;
+        client_prev_rounds_score = 0;
         this.boardLength = boardLength;
         this.context = context;
         this.board = board;
