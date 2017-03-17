@@ -29,6 +29,7 @@ import android.widget.Toast;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -182,7 +183,13 @@ public class MainActivity extends AppCompatActivity {
         submitButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 if(mode == GameMode.SinglePlayer || mode == GameMode.BasicTwoPlayer) {
+                    int submissionLength = frontend.last_click+1;
+                    int[] submission = frontend.current_submission;
                     if (frontend.submit_click()) {
+                        if (mode == GameMode.BasicTwoPlayer){
+                            BoggleMessage submit_msg = new BoggleMessage(MessageType.SubmitWord, submission, submissionLength);
+                            btService.write(submit_msg.output());
+                        }
                         refresh();
                         Toast.makeText(getApplicationContext(), "Valid word submitted!", Toast.LENGTH_SHORT).show();
                     } else {
@@ -202,7 +209,6 @@ public class MainActivity extends AppCompatActivity {
                         } else {
                             Toast.makeText(getApplicationContext(), "Word not valid!", Toast.LENGTH_SHORT).show();
                         }
-                        //TODO send client word to add to opponent list
                     } else { //client
                         int submissionLength = frontend.last_click + 1;
                         int[] submission = frontend.submit_click_client();
@@ -421,6 +427,7 @@ public class MainActivity extends AppCompatActivity {
         List<String> list = new ArrayList<>(frontend.boggleBoard.validWordsOnBoard);
         final List<String> myWords = new ArrayList<>(frontend.boggleBoard.validWordsFoundByUser);
         final List<String> opponentsWords = new ArrayList<>(frontend.boggleBoard.wordsFoundByOpponent);
+        Collections.sort(list);
 
         wordList.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, list) {
             @Override
@@ -587,25 +594,30 @@ public class MainActivity extends AppCompatActivity {
                 break;
             case MessageType.SubmitWord: //client submitted a word
                 String word = frontend.tiles_to_word(message.word_submission);
-                if(is_host) {
-                    int result = frontend.boggleBoard.checkWordAndUpdateScoreCutThroat(word, message.word_submission, true);
-                    BoggleMessage reply;
-                    if(result > 0) {
-                        reply = new BoggleMessage(MessageType.AcceptWord, message.word_submission, message.word_length);
-                        btService.write(reply.output());
+                if(mode == GameMode.CutThroatTwoPLayer) {
+                    if (is_host) {
+                        int result = frontend.boggleBoard.checkWordAndUpdateScoreCutThroat(word, message.word_submission, true);
+                        BoggleMessage reply;
+                        if (result > 0) {
+                            reply = new BoggleMessage(MessageType.AcceptWord, message.word_submission, message.word_length);
+                            btService.write(reply.output());
+                            frontend.boggleBoard.addOpponentWord(word);
+                            Toast.makeText(getApplicationContext(), String.format("Opponent found: %s", word), Toast.LENGTH_SHORT).show();
+                        } else if (result == -1) {
+                            reply = new BoggleMessage(MessageType.RejectWordIllegal);
+                            btService.write(reply.output());
+                        } else {
+                            reply = new BoggleMessage(MessageType.RejectWorldAlreadyFound);
+                            btService.write(reply.output());
+                        }
+                    } else { // Client
                         frontend.boggleBoard.addOpponentWord(word);
                         Toast.makeText(getApplicationContext(), String.format("Opponent found: %s", word), Toast.LENGTH_SHORT).show();
-                    } else if(result == -1) {
-                        reply = new BoggleMessage(MessageType.RejectWordIllegal);
-                        btService.write(reply.output());
-                    } else {
-                        reply = new BoggleMessage(MessageType.RejectWorldAlreadyFound);
-                        btService.write(reply.output());
                     }
                 }
-                else { // Client
+                else { // BasicTwoPlayer
                     frontend.boggleBoard.addOpponentWord(word);
-                    Toast.makeText(getApplicationContext(), String.format("Opponent found: %s", word), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), String.format("Opponent found a word!"), Toast.LENGTH_SHORT).show();
                 }
                 break;
             case MessageType.RejectWordIllegal:
