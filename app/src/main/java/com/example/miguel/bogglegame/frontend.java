@@ -165,7 +165,11 @@ public class frontend {
         System.out.println("Clicked the submit button");
         if(last_click >= 2) { //more than 3 letters long
             if(game_mode == GameMode.CutThroatTwoPLayer){
-                int result = boggleBoard.checkWordAndUpdateScoreCutThroat(get_candidate_word(), current_submission, false);
+                int[] tiles = new int[last_click+1];
+                for(int i = 0; i < tiles.length; i++) {
+                    tiles[i] = current_submission[i];
+                }
+                int result = boggleBoard.checkWordAndUpdateScoreCutThroat(get_candidate_word(), tiles, false);
                 if (result > 0){ // success
                     System.out.println("Word submission successful");
                     clear_click();
