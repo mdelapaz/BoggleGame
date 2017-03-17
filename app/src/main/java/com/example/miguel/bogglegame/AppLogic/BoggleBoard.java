@@ -275,9 +275,10 @@ public class BoggleBoard {
     }
 
     // use this function to check for valid words when the game mode is cut throat
-    // if word is valid, the points that the word is worth is returned
-    // is the word is check for host (i.e. not client), score is updated for the host
-    //return 0 if word is a valid word but has been submitted by user before
+    // if the word is checked for host (i.e. checkForClient == false), score is updated for the host (i.e. score is updated)
+    // if the word is checked for host (i.e. checkForClient == true), score is updated for the client (i.e. clientScore is updated)
+    // if word is valid, return the points that the word is worth
+    //return 0 if word is a valid word but has already been submitted by a user before
     //returns -1 if word is not a valid word i.e. not in game's dictionary
     //returns -2 if game is not in CutThroatTwoPLayer mode
     public int checkWordAndUpdateScoreCutThroat(String word, int[] sequenceOfTiles, boolean checkForClient)throws InputMismatchException {
