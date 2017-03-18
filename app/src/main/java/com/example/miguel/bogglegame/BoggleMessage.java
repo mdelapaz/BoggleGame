@@ -60,6 +60,7 @@ public class BoggleMessage {
                 break;
             case MessageType.HostRoundDone:
                 letter = new byte[1];
+                letters = new String[16];
                 for(int i = 0; i < letters.length; i++) {
                     letter[0] = input[i+1];
                     letters[i] = new String(letter);
