@@ -524,6 +524,7 @@ public class MainActivity extends AppCompatActivity {
                     if(is_multi_round){
                       /* In multiple round mode if your timer runs out, that means you lose the game */
                       waiting = false;
+                      frontend.end_game();
                       ShowWinnerDialog(false);
                     }
                 }
@@ -700,7 +701,8 @@ public class MainActivity extends AppCompatActivity {
                 difficulty = boardFromHost.difficulty;
                 is_multi_round = boardFromHost.is_multiround;
                 frontend = new frontend(letters, words, difficulty, mode, getApplicationContext());
-                resetButton.setText("End Round");
+                if(is_multi_round)
+                    resetButton.setText("End Round");
                 redrawBoard(letters);
                 startGame();
                 break;
@@ -759,6 +761,7 @@ public class MainActivity extends AppCompatActivity {
                     resetButton.setText("Menu");
                     ShowWordList();
                     gameTimer.cancel();
+                    frontend.end_game();
                     ShowWinnerDialog(true);
                 }
                 else {
