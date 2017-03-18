@@ -263,14 +263,21 @@ public class MainActivity extends AppCompatActivity {
                     gameTimer.cancel();
                     savedTotalScore = frontend.boggleBoard.getScore();
 
-                    if(opponentDone || (mode == GameMode.SinglePlayer)) {
+                    if(mode == GameMode.SinglePlayer) {
                         startNewRound();
                     } else {
-                        waiting = true; //freeze the buttons until the other guy finishes
+                        if(!opponentDone){
+                            waiting = true; //freeze the buttons until the other guy finishes
+                        }
                         if(is_host) { //if host make new board and sent it to client
                             frontend = new frontend(words, difficulty, mode, getApplicationContext());
                             boardFromHost = new BoggleMessage(MessageType.HostRoundDone, frontend.get_letters());
                             btService.write(boardFromHost.output());
+                        }
+                        else{  // if client, let the host know we're done
+                            BoggleMessage clientDone = new BoggleMessage(MessageType.ClientRoundDone);
+                            btService.write(clientDone.output());
+                            startNewRound();
                         }
                     }
                 } else { //in single round go back to splash
