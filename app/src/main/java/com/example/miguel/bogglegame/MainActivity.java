@@ -395,6 +395,28 @@ public class MainActivity extends AppCompatActivity {
         dialog.show();
     }
 
+    private void ShowWinnerDialog(final boolean winner){
+        AlertDialog.Builder dialog;
+
+        dialog = new AlertDialog.Builder(this);
+        if(winner){
+            dialog.setTitle("You win!");
+            dialog.setMessage("Your opponent ran out of time!");
+        }
+        else{
+            dialog.setTitle("You lose!");
+            dialog.setMessage("Sorry, you ran out of time!");
+        }
+
+        dialog.setPositiveButton("OK", new DialogInterface.OnClickListener(){
+            @Override
+            public void onClick(DialogInterface dialog, int which){
+                dialog.dismiss();
+            }
+        });
+        dialog.show();
+    }
+
     public void CreateNameDialog(){
         AlertDialog.Builder dialog = new AlertDialog.Builder(this);
         dialog.setTitle("Enter your name");
@@ -496,6 +518,10 @@ public class MainActivity extends AppCompatActivity {
                 else{
                     BoggleMessage score_msg = new BoggleMessage(MessageType.SendScore, frontend.boggleBoard.getScore());
                     btService.write(score_msg.output());
+                    if(is_multi_round){
+                      /* In multiple round mode if your timer runs out, that means you lose the game */
+                      ShowWinnerDialog(false);
+                    }
                 }
             }
         }.start();
@@ -719,8 +745,21 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(getApplicationContext(), "Word already found!", Toast.LENGTH_SHORT).show();
                 break;
             case MessageType.SendScore:
-                frontend.boggleBoard.setClientScore(message.score);
-                ShowScoreDialog(frontend.end_game());
+                /* This is sent from either the host or the client when their timer runs out
+                   for multiple round mode, this means that the opponent has run out of time and
+                   lost the game.
+                 */
+                if(is_multi_round){
+                    timeview.setText("Game Over");
+                    resetButton.setText("Menu");
+                    ShowWordList();
+                    gameTimer.cancel();
+                    ShowWinnerDialog(true);
+                }
+                else {
+                    frontend.boggleBoard.setClientScore(message.score);
+                    ShowScoreDialog(frontend.end_game());
+                }
                 break;
             case MessageType.ReadyToStart: // Host receives this from client
                 frontend = new frontend(words, difficulty, mode, getApplicationContext());
