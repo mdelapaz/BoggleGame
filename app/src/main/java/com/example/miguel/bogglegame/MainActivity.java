@@ -266,9 +266,6 @@ public class MainActivity extends AppCompatActivity {
                     if(mode == GameMode.SinglePlayer) {
                         startNewRound();
                     } else {
-                        if(!opponentDone){
-                            waiting = true; //freeze the buttons until the other guy finishes
-                        }
                         if(is_host) { //if host make new board and sent it to client
                             frontend = new frontend(words, difficulty, mode, getApplicationContext());
                             boardFromHost = new BoggleMessage(MessageType.HostRoundDone, frontend.get_letters());
@@ -277,7 +274,13 @@ public class MainActivity extends AppCompatActivity {
                         else{  // if client, let the host know we're done
                             BoggleMessage clientDone = new BoggleMessage(MessageType.ClientRoundDone);
                             btService.write(clientDone.output());
+                        }
+
+                        if(opponentDone){
                             startNewRound();
+                        }
+                        else{
+                            waiting = true;  //freeze the buttons until the other guy finishes
                         }
                     }
                 } else { //in single round go back to splash
@@ -520,6 +523,7 @@ public class MainActivity extends AppCompatActivity {
                     btService.write(score_msg.output());
                     if(is_multi_round){
                       /* In multiple round mode if your timer runs out, that means you lose the game */
+                      waiting = false;
                       ShowWinnerDialog(false);
                     }
                 }
@@ -750,6 +754,7 @@ public class MainActivity extends AppCompatActivity {
                    lost the game.
                  */
                 if(is_multi_round){
+                    waiting = false;
                     timeview.setText("Game Over");
                     resetButton.setText("Menu");
                     ShowWordList();
